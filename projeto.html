@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Seu Projeto de Saúde - Saúde+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; padding: 20px; padding-top: 90px; margin: 0; }
+        header { background-color: #343a40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; position: fixed; display: flex; justify-content: center; align-items: center; top: 0; left: 0; width: 100%; z-index: 1001; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        .site-title { margin: 0; color: #ffc107; font-size: 2rem; font-weight: 700; line-height: 1; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        main { max-width: 900px; margin: 40px auto; text-align: center; }
+        .hidden { display: none; }
+        
+        /* Estilos do Quiz */
+        #quiz-container { background-color: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        #question-text { font-size: 1.8rem; font-weight: 600; color: #2c3e50; margin-bottom: 30px; }
+        #options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .option-btn { padding: 20px; background-color: #fff; color: #3498db; border: 2px solid #3498db; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; font-weight: 600; font-size: 1.1rem; }
+        .option-btn:hover { background-color: #3498db; color: white; transform: translateY(-3px); }
+
+        /* Estilos do Botão Inicial */
+        .btn-start { padding: 20px 40px; background-color: #1abc9c; color: white; border: none; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; font-size: 1.5rem; }
+        .btn-start:hover { background-color: #16a085; transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+        /* Estilos dos Resultados */
+        #results-container { background-color: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); text-align: left; }
+        #results-container h1 { font-size: 2.5rem; text-align: center; color: #1abc9c; margin-bottom: 15px; }
+        #results-container .result-intro { text-align: center; font-size: 1.2rem; color: #555; margin-bottom: 40px; }
+        .result-section { margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid #eee; }
+        .result-section:last-child { border-bottom: none; margin-bottom: 0; }
+        .result-section h2 { font-size: 1.8rem; color: #2c3e50; margin-bottom: 20px; border-left: 4px solid #1abc9c; padding-left: 15px; }
+        
+        /* Suplementos e Nutricionista */
+        .saved-project {
+            margin-bottom: 40px;
+        }
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .project-header:hover { background-color: #f1f3f5; }
+        .project-header h2 { margin: 0; font-size: 1.4rem; color: #2c3e50; border: none; padding: 0; }
+        .arrow-icon { font-size: 0.9rem; transition: transform 0.3s; color: #1abc9c; }
+        .project-content {
+            padding: 20px;
+            border: 1px solid #eee;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background-color: #fff;
+        }
+        .recommendation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .recommendation-card { background-color: #f8f9fa; padding: 20px; border-radius: 8px; }
+        .recommendation-card h3 { margin-top: 0; font-size: 1.3rem; }
+        .recommendation-card ul { list-style: '✓ '; padding-left: 20px; }
+        .recommendation-card li, .recommendation-card p { font-size: 1rem; line-height: 1.6; }
+        .recommendation-card a { color: #1abc9c; font-weight: 600; text-decoration: none; }
+
+        footer { background-color: #343a40; color: #f8f9fa; text-align: center; padding: 30px 20px; margin-top: 60px; }
+
+        @media (max-width: 768px) {
+            #options-container, .recommendation-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="site-title">Saúde++</h1>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="profissionais.html">Profissionais</a></li>
+                    <li><a href="avaliacoes.html">Avaliações</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O contêiner do menu de usuário será preenchido pelo auth.js -->
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div id="start-container">
+            <h1>Descubra seu Plano Ideal</h1>
+            <p style="font-size: 1.3rem; color: #555; margin-bottom: 40px;">Responda algumas perguntas rápidas e receba um plano completo e gratuito, feito para você.</p>
+            <button id="start-quiz-btn" class="btn-start">Iniciar Novo Projeto</button>
+        </div>
+
+        <div id="quiz-container" class="hidden">
+            <p id="question-text"></p>
+            <div id="options-container"></div>
+        </div>
+
+        <div id="results-container" class="hidden">
+            <!-- O conteúdo dos resultados será inserido aqui pelo JavaScript -->
+        </div>
+    </main>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        const startContainer = document.getElementById('start-container');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+
+        const quizQuestions = [
+            {
+                question: "Qual é o seu principal objetivo físico?",
+                isScoring: true,
+                options: [
+                    { text: "Ganhar massa muscular", key: "massa_muscular" },
+                    { text: "Perder peso / Gordura", key: "emagrecimento" },
+                    { text: "Melhorar a saúde geral", key: "saude_geral" },
+                    { text: "Aumentar minha força", key: "massa_muscular" }
+                ]
+            },
+            {
+                question: "Como você prefere se exercitar?",
+                options: [
+                    { text: "Academia", key: "academia" },
+                    { text: "Esportes (Futebol, Vôlei, etc)", key: "esportes" },
+                    { text: "Caminhada / Corrida", key: "corrida" },
+                    { text: "Crossfit / Funcional", key: "crossfit" }
+                ]
+            },
+            {
+                question: "Qual box de CrossFit você prefere em Pinhais?",
+                key: "crossfit_selecionado",
+                isDynamic: true,
+                condition: (answers) => answers.exercisePreference === 'crossfit', // Só mostra se a preferência for crossfit
+                options: [] // Será preenchido dinamicamente
+            },
+            {
+                question: "Qual parque você prefere para sua caminhada ou corrida?",
+                key: "parque_selecionado",
+                isDynamic: true,
+                condition: (answers) => answers.exercisePreference === 'corrida', // Só mostra se a preferência for corrida
+                options: [] // Será preenchido dinamicamente
+            },
+            {
+                question: "Onde você gostaria de alugar uma quadra?",
+                key: "quadra_selecionada",
+                isDynamic: true,
+                condition: (answers) => answers.exercisePreference === 'esportes', // Só mostra se a preferência for esportes
+                options: [] // Será preenchido dinamicamente
+            },
+            {
+                question: "Qual academia você frequenta ou prefere?",
+                key: "academia_selecionada",
+                isDynamic: true, // Indica que as opções são geradas dinamicamente
+                condition: (answers) => answers.exercisePreference === 'academia', // Só mostra se a preferência for academia
+                options: [] // Será preenchido dinamicamente
+            }
+        ];
+
+        const recommendations = {
+            massa_muscular: { title: "Ganho de Massa Muscular", intro: "Seu foco é construir músculos e força. Este plano é desenhado para maximizar a hipertrofia e a recuperação.", supplements: ["Creatina", "Whey Protein", "BCAA"], nutritionist: { name: "Ana Dias", specialty: "Nutrição Esportiva" } },
+            emagrecimento: { title: "Emagrecimento e Definição", intro: "Seu objetivo é queimar gordura e melhorar a definição corporal. Este plano combina musculação com cardio para acelerar seu metabolismo.", supplements: ["Termogênico", "Whey Protein", "Multivitamínico"], nutritionist: { name: "Bruno Costa", specialty: "Emagrecimento e Reeducação Alimentar" } },
+            saude_geral: { title: "Saúde e Bem-Estar", intro: "Seu foco é manter um estilo de vida ativo e saudável. Este plano equilibra força, resistência e flexibilidade para uma saúde completa.", supplements: ["Multivitamínico", "Ômega 3", "Vitamina D3"], nutritionist: { name: "Carla Souza", specialty: "Nutrição Clínica e Funcional" } }
+        };
+
+        const trainers = {
+            massa_muscular: { name: "Ricardo Mendes", specialty: "Hipertrofia e Força" },
+            emagrecimento: { name: "Laura Ferreira", specialty: "Emagrecimento e Funcional" },
+            saude_geral: { name: "Laura Ferreira", specialty: "Emagrecimento e Funcional" }
+        };
+
+        // Listas de locais de exemplo com coordenadas (latitude, longitude)
+        const academias = [
+            { name: "Smart Fit - Pinhais", lat: -25.4435, lon: -49.1928 },
+            { name: "Bluefit - Pinhais", lat: -25.4448, lon: -49.1945 },
+            { name: "PhD Sports", lat: -25.4284, lon: -49.1895 },
+            { name: "Academia Overall", lat: -25.4411, lon: -49.1911 }
+        ];
+
+        const quadras = [
+            { name: "Master Sports (Quadras)", lat: -25.4255, lon: -49.1555 },
+            { name: "Fair Play Sports", lat: -25.4313, lon: -49.1983 },
+            { name: "Point da Bola", lat: -25.4485, lon: -49.1899 },
+            { name: "Centro de Esportes e Lazer", lat: -25.4425, lon: -49.2005 }
+        ];
+
+        const parques = [
+            { name: "Parque das Águas de Pinhais", lat: -25.4336, lon: -49.1485 },
+            { name: "Bosque Municipal de Pinhais", lat: -25.4420, lon: -49.1965 },
+            { name: "Parque Linear do Rio Atuba", lat: -25.4155, lon: -49.2011 }
+        ];
+
+        const crossfitBoxes = [
+            { name: "CrossFit Pinhais", lat: -25.4390, lon: -49.1925 },
+            { name: "Vila da Luta CrossFit", lat: -25.4451, lon: -49.1858 },
+            { name: "CT PMP (Funcional)", lat: -25.4415, lon: -49.1999 },
+            { name: "Brabus CrossFit", lat: -25.4375, lon: -49.1810 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userScores = {
+            massa_muscular: 0,
+            emagrecimento: 0,
+            saude_geral: 0
+        };
+        let exercisePreference = '';
+        let selectedCrossfitBox = '';
+        let selectedPark = '';
+        let selectedQuadra = '';
+        let selectedAcademy = '';
+
+        // Função para calcular distância (Fórmula de Haversine)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raio da Terra em km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distância em km
+        }
+
+        // Função para obter a localização do usuário
+        function getUserLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("Geolocalização não é suportada por este navegador."));
+                } else {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => resolve(position.coords),
+                        (error) => reject(error)
+                    );
+                }
+            });
+        }
+
+        function showQuestion() {
+            let currentQuestion = quizQuestions[currentQuestionIndex];
+
+            // Pula a pergunta se a condição não for atendida
+            if (currentQuestion.condition && !currentQuestion.condition({ exercisePreference: exercisePreference })) {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+                return;
+            }
+
+            questionText.textContent = currentQuestion.question;
+            optionsContainer.innerHTML = '';
+
+            if (currentQuestion.isDynamic) {
+                const isAcademyQuestion = currentQuestion.key === 'academia_selecionada';
+                const isQuadraQuestion = currentQuestion.key === 'quadra_selecionada';
+                const isParkQuestion = currentQuestion.key === 'parque_selecionado';
+                
+                let locations, locationType;
+                if (isAcademyQuestion) {
+                    locations = academias; locationType = 'academias';
+                } else if (isQuadraQuestion) {
+                    locations = quadras; locationType = 'quadras';
+                } else if (isParkQuestion) {
+                    locations = parques; locationType = 'parques';
+                } else { // É a pergunta do parque
+                    locations = crossfitBoxes; locationType = 'boxes de CrossFit';
+                }
+
+                optionsContainer.innerHTML = `<p>Buscando ${locationType} próximas...</p>`;
+                getUserLocation().then(coords => {
+                    locations.forEach(location => {
+                        location.distance = getDistance(coords.latitude, coords.longitude, location.lat, location.lon);
+                    });
+                    locations.sort((a, b) => a.distance - b.distance); // Ordena por distância
+                    
+                    optionsContainer.innerHTML = ''; // Limpa a mensagem de "buscando"
+                    locations.forEach((location) => {
+                        const button = document.createElement('button');
+                        button.innerHTML = `${location.name} <br><small>(${location.distance.toFixed(1)} km)</small>`;
+                        button.classList.add('option-btn');
+                        button.dataset.key = location.name;
+                        button.addEventListener('click', handleOptionClick);
+                        optionsContainer.appendChild(button);
+                    });
+                }).catch(error => {
+                    console.warn("Localização indisponível, mostrando lista padrão.");
+                    optionsContainer.innerHTML = '';
+                    // Fallback: mostra as opções mesmo sem geolocalização
+                    locations.forEach(location => {
+                        const button = document.createElement('button');
+                        button.textContent = location.name;
+                        button.classList.add('option-btn');
+                        button.dataset.key = location.name;
+                        button.addEventListener('click', handleOptionClick);
+                        optionsContainer.appendChild(button);
+                    });
+                });
+            } else {
+                // Lógica para perguntas estáticas
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option.text;
+                    button.classList.add('option-btn');
+                    button.dataset.key = option.key;
+                    button.addEventListener('click', handleOptionClick);
+                    optionsContainer.appendChild(button);
+                });
+            }
+        }
+
+        function handleOptionClick(event) {
+            // CORREÇÃO: Usa currentTarget para garantir que o valor seja pego do botão,
+            // mesmo se clicar no texto pequeno da distância.
+            const selectedKey = event.currentTarget.dataset.key;
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+
+            // Se a pergunta tiver a propriedade 'isScoring', ela pontua.
+            // Senão, ela define a preferência de exercício.
+            if (currentQuestion.isScoring) {
+                userScores[selectedKey]++;
+            } else if (currentQuestion.key === 'crossfit_selecionado') {
+                selectedCrossfitBox = selectedKey;
+            } else if (currentQuestion.key === 'parque_selecionado') {
+                selectedPark = selectedKey;
+            } else if (currentQuestion.key === 'quadra_selecionada') {
+                selectedQuadra = selectedKey;
+            } else if (currentQuestion.key === 'academia_selecionada') {
+                selectedAcademy = selectedKey;
+            } else {
+                exercisePreference = selectedKey;
+            }
+            
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function saveProject(newProject) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (currentUser) {
+                // Salva no perfil do usuário logado
+                if (!currentUser.projects) currentUser.projects = [];
+                currentUser.projects.unshift(newProject);
+                AuthService.updateUser(currentUser);
+            } else {
+                // Fallback para usuários visitantes (sem conta)
+                let savedProjects = JSON.parse(localStorage.getItem('savedProjects')) || [];
+                savedProjects.unshift(newProject);
+                localStorage.setItem('savedProjects', JSON.stringify(savedProjects));
+            }
+        }
+
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+
+            // Determina o objetivo principal com base nas pontuações
+            let primaryGoal = 'saude_geral'; // Padrão
+            if (userScores.massa_muscular > userScores.emagrecimento && userScores.massa_muscular > userScores.saude_geral) {
+                primaryGoal = 'massa_muscular';
+            } else if (userScores.emagrecimento > userScores.massa_muscular && userScores.emagrecimento > userScores.saude_geral) {
+                primaryGoal = 'emagrecimento';
+            }
+
+            // Cria o objeto do novo projeto
+            const newProject = {
+                id: Date.now(), // Adicionado ID único para permitir exclusão individual
+                goal: primaryGoal,
+                exercise: exercisePreference,
+                crossfitBox: selectedCrossfitBox,
+                park: selectedPark,
+                quadra: selectedQuadra,
+                academy: selectedAcademy, // Salva a academia escolhida
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            // Salva o projeto e atualiza a tela
+            saveProject(newProject);
+            loadAndDisplayProjects();
+        }
+
+        function deleteSingleProject(projectId) {
+            if (!confirm("Deseja excluir este projeto específico?")) return;
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser && currentUser.projects) {
+                currentUser.projects = currentUser.projects.filter(p => p.id !== projectId);
+                AuthService.updateUser(currentUser);
+            } else {
+                let savedProjects = JSON.parse(localStorage.getItem('savedProjects')) || [];
+                savedProjects = savedProjects.filter(p => p.id !== projectId);
+                localStorage.setItem('savedProjects', JSON.stringify(savedProjects));
+            }
+            loadAndDisplayProjects();
+        }
+
+        function toggleProject(projectId) {
+            const content = document.getElementById(`content-${projectId}`);
+            const arrow = document.getElementById(`arrow-${projectId}`);
+            const isHidden = content.classList.contains('hidden');
+            
+            if (isHidden) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function renderProject(projectData, index, total) {
+            const resultData = recommendations[projectData.goal];
+            const trainerData = trainers[projectData.goal];
+            
+            let trainerHtml = '';
+            if (projectData.exercise === 'academia') {
+                trainerHtml = /*html*/`
+                    <div class="recommendation-card">
+                        <h3>Personal Trainer Indicado</h3>
+                        <p>Para treinos na <strong>${projectData.academy || 'sua academia'}</strong>, o profissional <strong>${trainerData.name}</strong> (${trainerData.specialty}) é o mais indicado para montar seu plano.</p>
+                        <p><a href="profissionais.html">Conheça nossos personais &rarr;</a></p>
+                    </div>`;
+            } else if (projectData.exercise === 'esportes') {
+                trainerHtml = /*html*/`
+                    <div class="recommendation-card">
+                        <h3>Local para Prática</h3>
+                        <p>A quadra <strong>${projectData.quadra || 'de sua preferência'}</strong> é uma ótima opção para seus jogos e treinos.</p>
+                        <p>Lembre-se de aquecer bem antes de começar!</p>
+                    </div>`;
+            } else if (projectData.exercise === 'corrida') {
+                trainerHtml = /*html*/`
+                    <div class="recommendation-card">
+                        <h3>Local para Prática</h3>
+                        <p>O <strong>${projectData.park || 'parque de sua preferência'}</strong> é um excelente local para suas corridas e caminhadas.</p>
+                        <p>Aproveite o ar livre e mantenha-se hidratado!</p>
+                    </div>`;
+            } else if (projectData.exercise === 'crossfit') {
+                trainerHtml = /*html*/`
+                    <div class="recommendation-card">
+                        <h3>Local para Prática</h3>
+                        <p>O <strong>${projectData.crossfitBox || 'box de sua preferência'}</strong> é ideal para seus treinos de alta intensidade.</p>
+                        <p>Lembre-se de focar na técnica dos movimentos!</p>
+                    </div>`;
+            }
+
+            return `
+                <div class="saved-project" id="project-${projectData.id}">
+                    <div class="project-header" onclick="toggleProject(${projectData.id})">
+                        <h2>Projeto #${total - index}: ${resultData.title} <span id="arrow-${projectData.id}" class="arrow-icon">▼</span></h2>
+                        <button onclick="event.stopPropagation(); deleteSingleProject(${projectData.id})" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-weight: bold;">[Excluir]</button>
+                    </div>
+                    <div id="content-${projectData.id}" class="project-content hidden">
+                        <p style="text-align:center; font-weight:600; color: #6c757d;">Criado em: ${projectData.date}</p>
+                        <p class="result-intro">${resultData.intro}</p>
+                        <div class="result-section">
+                            <h2>Recomendações</h2>
+                            <div class="recommendation-grid">
+                                <div class="recommendation-card">
+                                    <h3>Suplementos Indicados</h3>
+                                    <ul>${resultData.supplements.map(sup => `<li>${sup}</li>`).join('')}</ul>
+                                    <p><a href="produtos.html">Ver produtos na loja &rarr;</a></p>
+                                </div>
+                                <div class="recommendation-card">
+                                    <h3>Nutricionista Ideal</h3>
+                                    <p>Com base no seu objetivo, o(a) especialista <strong>${resultData.nutritionist.name}</strong> (${resultData.nutritionist.specialty}) é o(a) mais indicado(a) para te guiar.</p>
+                                    <p><a href="profissionais.html">Conheça nossos nutricionistas &rarr;</a></p>
+                                </div>
+                                ${trainerHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function loadAndDisplayProjects() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            // Tenta carregar do usuário, se não houver, tenta do local global (visitantes)
+            const savedProjects = (currentUser && currentUser.projects) ? currentUser.projects : (JSON.parse(localStorage.getItem('savedProjects')) || []);
+            
+            resultsContainer.innerHTML = '';
+
+            if (savedProjects.length > 0) {
+                startContainer.classList.add('hidden');
+                quizContainer.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+
+                savedProjects.forEach((project, index) => {
+                    resultsContainer.innerHTML += renderProject(project, index, savedProjects.length);
+                });
+
+                resultsContainer.innerHTML += `
+                    <div style="text-align:center; display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+                        <button id="restart-quiz-btn" class="btn-start">Iniciar Novo Projeto</button>
+                        <button id="clear-projects-btn" class="btn-start" style="background-color: #e74c3c;">Limpar Projetos</button>
+                    </div>
+                `;
+                document.getElementById('restart-quiz-btn').addEventListener('click', startNewQuiz);
+                document.getElementById('clear-projects-btn').addEventListener('click', () => {
+                    const confirmation = confirm("Tem certeza que deseja excluir todos os seus projetos salvos? Esta ação não pode ser desfeita.");
+                    if (confirmation) {
+                        if (currentUser) {
+                            currentUser.projects = [];
+                            AuthService.updateUser(currentUser);
+                        } else {
+                            localStorage.removeItem('savedProjects');
+                        }
+                        window.location.reload(); // Recarrega a página para mostrar o estado inicial
+                    }
+                });
+            }
+        }
+
+        function startNewQuiz() {
+            resultsContainer.classList.add('hidden');
+            startContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            userScores = { massa_muscular: 0, emagrecimento: 0, saude_geral: 0 };
+            exercisePreference = '';
+            selectedCrossfitBox = '';
+            selectedPark = '';
+            selectedQuadra = '';
+            selectedAcademy = '';
+            showQuestion();
+        }
+
+        startQuizBtn.addEventListener('click', startNewQuiz);
+        document.addEventListener('DOMContentLoaded', loadAndDisplayProjects);
+    </script>
+
+</body>
+</html>

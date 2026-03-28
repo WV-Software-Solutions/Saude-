@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sobre Nós - Saúde+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; color: #212529; padding: 20px; padding-top: 90px; margin: 0; line-height: 1.8; overflow-x: hidden; }
+        header { background-color: #343a40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; position: fixed; display: flex; justify-content: center; align-items: center; top: 0; left: 0; width: 100%; z-index: 1001; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        .site-title { margin: 0; color: #ffc107; font-size: 2rem; font-weight: 700; line-height: 1; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        main.container { max-width: 800px; margin: 0 auto; padding-top: 40px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); padding: 30px; } /* Ajuste para o container principal */
+        h1 { font-size: 2.8rem; margin-bottom: 20px; color: #343a40; font-weight: 700; text-align: center; }
+        p { margin-bottom: 20px; line-height: 1.7; color: #555; }
+        footer { background-color: #343a40; color: #f8f9fa; text-align: center; padding: 30px 20px; margin-top: 60px; }
+
+        /* Estilos para o novo conteúdo da página Sobre */
+        .intro-text {
+            font-size: 1.2rem;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #6c757d;
+        }
+
+        .about-section {
+            margin-bottom: 40px;
+            padding-bottom: 40px; /* Aumenta o espaço para a linha */
+            position: relative; /* Necessário para o pseudo-elemento */
+        }
+
+        /* NOVO: Linha horizontal estilizada como separador */
+        .about-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px; /* Largura da linha */
+            height: 3px;  /* Espessura da linha */
+            background-color: #1abc9c; /* Cor da linha, usando o tema do site */
+            border-radius: 2px;
+        }
+
+        .about-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .about-section:last-child::after {
+            display: none; /* Remove a linha do último elemento */
+        }
+
+        .about-section h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: left; /* Títulos de seção alinhados à esquerda */
+            font-weight: 600;
+        }
+
+        .values-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .values-list li {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #1abc9c; /* Destaque verde */
+            border-radius: 4px;
+            font-size: 1.05rem;
+            color: #343a40;
+        }
+
+        .values-list li strong {
+            color: #1abc9c;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="site-title">Saúde++</div>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="profissionais.html">Profissionais</a></li>
+                    <li><a href="avaliacoes.html">Avaliações</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O contêiner do menu de usuário será preenchido pelo auth.js -->
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="about-hero">
+            <h1>Nossa Essência é o Seu Bem-Estar</h1>
+            <p>Conheça a história e os valores que movem a Saúde+ a ser sua parceira na jornada por uma vida mais saudável.</p>
+        </section>
+
+        <div class="about-content">
+            <section class="content-section">
+                <h2>Nossa Missão</h2>
+                <p>
+                    Fundada com a paixão por bem-estar e a visão de democratizar o acesso a produtos de saúde de alta qualidade, a Saúde+ nasceu para ser um farol de confiança no mercado. Nossa missão é clara: <strong>capacitar indivíduos a atingirem seus objetivos de saúde e fitness</strong>, oferecendo uma seleção rigorosa de suplementos, vitaminas e produtos que realmente funcionam.
+                </p>
+                <p>
+                    Acreditamos na ciência por trás de cada produto e no poder da informação. Por isso, nos dedicamos a educar nossos clientes, ajudando-os a fazer escolhas conscientes que se alinhem às suas necessidades e estilo de vida.
+                </p>
+            </section>
+
+            <section class="content-section">
+                <h2>Nossos Pilares</h2>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="icon">★</div>
+                        <h3>Qualidade Inquestionável</h3>
+                        <p>Selecionamos apenas produtos de marcas renomadas e com certificação de pureza e eficácia.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="icon">✓</div>
+                        <h3>Transparência Total</h3>
+                        <p>Informações claras e honestas sobre cada item, para que você saiba exatamente o que está consumindo.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="icon">❤</div>
+                        <h3>Atendimento Humanizado</h3>
+                        <p>Uma equipe de especialistas pronta para ouvir, entender suas necessidades e guiar você em sua jornada.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Sua Jornada, Nosso Compromisso</h2>
+                <p>Seja você um atleta em busca de alta performance, alguém que procura mais energia para o dia a dia, ou simplesmente quer cuidar melhor da sua saúde, a Saúde+ está aqui para você. Convidamos você a explorar nosso universo de possibilidades e a dar o próximo passo em direção à sua melhor versão.</p>
+                <p style="text-align: center; font-weight: 600; font-size: 1.1rem; color: #333;">Junte-se à família Saúde+ e descubra o poder de viver com mais vitalidade!</p>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="auth.js"></script>
+
+</body>
+</html>

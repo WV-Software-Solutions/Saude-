@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Saúde++ | Sua transformação começa aqui!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f4f7f6; /* Tom de cinza mais suave */
+            color: #333;
+            padding: 20px; 
+            padding-top: 90px; /* Espaço para a barra de navegação fixa */
+            margin: 0;
+            overflow-x: hidden; /* Evita rolagem horizontal indesejada */
+        }
+        header {
+            background-color: #343a40; /* Header escuro */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1001;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* NOVO: Wrapper para centralizar o conteúdo principal */
+        .main-content-wrapper {
+            max-width: 1200px; /* Largura máxima do conteúdo */
+            margin: 0 auto; /* Centraliza o wrapper na página */
+            padding: 0 20px; /* Espaçamento lateral interno */
+        }
+        .site-title {
+            margin: 0;
+            color: #ffc107; /* Cor de destaque amarela/dourada */
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .btn { padding: 12px 24px; background-color: #1abc9c; /* Verde-menta vibrante */ color: white; border: none; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .btn:hover { background-color: #16a085; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1002; }
+        .cart-content {
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            width: 90%; 
+            max-width: 500px; 
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
+        }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .cart-header h2 { margin: 0; font-size: 1.5rem; }
+        .close-modal-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        #cart-items { flex-grow: 1; overflow-y: auto; padding-right: 10px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .cart-item-info { display: flex; align-items: center; gap: 15px; }
+        .cart-item-info img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        .cart-item-details span { display: block; }
+        .cart-item-details .item-name { font-weight: 600; }
+        .cart-item-controls { display: flex; align-items: center; gap: 10px; }
+        .cart-item-controls button { background-color: #ddd; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; }
+        .cart-footer { padding-top: 20px; border-top: 1px solid #eee; text-align: right; }
+        .cart-footer strong { font-size: 1.2rem; color: #333; }
+        .checkout-btn { background-color: #1abc9c; color: white; margin-top: 15px; width: 100%; }
+        .checkout-btn:hover { background-color: #16a085; }
+
+        /* Product Detail Modal Styles */
+        .product-detail-modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1003; /* Above cart modal */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            /* CORREÇÃO: Removido 'display: flex;' daqui. O JS controlará a exibição. */
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* NOVO: Para esconder campos de opção dinamicamente */
+        .modal-options .form-group.hidden {
+            display: none;
+        }
+
+        .product-detail-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .product-detail-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .product-detail-content .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            text-align: left; /* Override global h2 center align */
+        }
+
+        .product-detail-content .close-modal-btn {
+            color: #aaa;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.3s;
+        }
+
+        .product-detail-content .close-modal-btn:hover,
+        .product-detail-content .close-modal-btn:focus {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .product-detail-content .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 25px;
+        }
+        nav a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.8); /* Texto do menu mais suave */
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #fff; /* Destaque branco no hover */
+        }
+
+        .hero {
+            background: linear-gradient(45deg, #2c3e50, #3498db); /* Novo gradiente azul profundo */
+            color: #fff; /* Texto branco para contraste */
+            text-align: center;
+            padding: 100px 20px; /* Mais padding vertical */
+            margin-bottom: 60px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.2);
+        }
+        .hero h1 {
+            font-size: 3.8rem; /* Fonte maior */
+            color: #fff;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+        }
+        .hero p { 
+            font-size: 1.3rem; /* Fonte maior */
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.8rem; /* Fonte maior */
+            margin-bottom: 50px; 
+            color: #343a40;
+            font-weight: 700;
+        }
+
+        .products-container {
+            display: grid; /* Usando Grid para o layout */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Layout responsivo com grid */
+            gap: 30px;
+        }
+
+        .product {
+            background-color: #fff;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Sombra mais suave e elevada */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer; /* Indica que o card é clicável */
+        }
+        .product:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        .product img { width: 100%; height: 200px; object-fit: cover; }
+        .product-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-info h3 { margin: 0 0 10px 0; font-size: 1.4rem; color: #2c3e50; /* Título do produto com cor escura */ }
+        .product-info p { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 15px; line-height: 1.6; }
+        .product-info span { font-weight: bold; font-size: 1.8rem; color: #343a40; margin-bottom: 15px; }
+
+        footer {
+            background-color: #343a40; /* Footer escuro, combinando com o header */
+            color: #f8f9fa;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+
+        /* --- Estilos para o banner de oferta --- */
+        .offer-banner {
+            background: linear-gradient(45deg, #ffc107, #ff6b6b); /* Fundo em gradiente vibrante */
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 40px 0;
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden; /* Essencial para o efeito de brilho */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Efeito de brilho (shine) */
+        .offer-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-25deg);
+            animation: shine 4s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -150%;
+            }
+            100% {
+                left: 150%;
+            }
+        }
+
+        /* Estilos para os filtros */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background-color: #fff;
+            color: #343a40;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .filter-btn:hover {
+            background-color: #f0f0f0;
+            border-color: #ccc;
+        }
+
+        .filter-btn.active {
+            background-color: #1abc9c;
+            color: white;
+            border-color: #1abc9c;
+        }
+
+        /* --- Estilos para o Projeto/Quiz --- */
+        #projeto-container {
+            background-color: #fff;
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            margin-bottom: 60px;
+        }
+        .hidden { display: none; }
+        #start-container h2 { font-size: 2.8rem; margin-bottom: 15px; }
+        #start-container p { font-size: 1.3rem; color: #555; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .btn-start { padding: 18px 36px; background-color: #1abc9c; color: white; border: none; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; font-size: 1.3rem; }
+        .btn-start:hover { background-color: #16a085; transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        
+        #question-text { font-size: 1.8rem; font-weight: 600; color: #2c3e50; margin-bottom: 30px; }
+        #options-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .option-btn { padding: 20px; background-color: #fff; color: #3498db; border: 2px solid #3498db; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; font-weight: 600; font-size: 1.1rem; }
+        .option-btn:hover { background-color: #3498db; color: white; transform: translateY(-3px); }
+
+        #results-container h1 { font-size: 2.5rem; text-align: center; color: #1abc9c; margin-bottom: 15px; }
+        #results-container .result-intro { text-align: center; font-size: 1.2rem; color: #555; margin-bottom: 40px; }
+        .result-section { margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid #eee; text-align: left; }
+        .result-section:last-child { border-bottom: none; margin-bottom: 0; }
+        .result-section h2 { font-size: 1.8rem; color: #2c3e50; margin-bottom: 20px; border-left: 4px solid #1abc9c; padding-left: 15px; text-align: left; }
+        
+        .recommendation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .recommendation-card { background-color: #f8f9fa; padding: 20px; border-radius: 8px; }
+        .recommendation-card h3 { margin-top: 0; font-size: 1.3rem; }
+        .recommendation-card ul { list-style: '✓ '; padding-left: 20px; }
+        .recommendation-card li, .recommendation-card p { font-size: 1rem; line-height: 1.6; }
+        .recommendation-card a { color: #1abc9c; font-weight: 600; text-decoration: none; }
+
+        .workout-plan table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .workout-plan th, .workout-plan td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .workout-plan th { background-color: #343a40; color: white; font-size: 1.1rem; }
+        .workout-plan td { background-color: #fdfdfd; }
+        .workout-plan .day-header { background-color: #e9ecef; font-weight: 700; color: #495057; }
+
+        @media (max-width: 768px) {
+            #options-container, .recommendation-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="site-title">Saúde++</h1>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="profissionais.html">Profissionais</a></li>
+                    <li><a href="avaliacoes.html">Avaliações</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O contêiner do menu de usuário será preenchido pelo auth.js -->
+                <div id="user-nav-container" style="position: relative;">
+                    <!-- Conteúdo dinâmico -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- NOVO: Wrapper para centralizar o conteúdo principal -->
+        <div class="main-content-wrapper">
+        <section class="hero">
+            <h1>Sua jornada para uma vida mais saudável</h1>
+            <p>Encontre os melhores suplementos e produtos para o seu bem-estar.</p>
+        </section>
+
+        <!-- SEÇÃO DO PROJETO -->
+        <section id="projeto-container">
+            <div id="start-container">
+                <h2>Descubra seu Plano Ideal</h2>
+                <p>Receba um plano completo e gratuito de suplementos, treinos e nutrição, feito para você.</p>
+                <a href="projeto.html" class="btn-start">Iniciar Meu Projeto</a>
+            </div>
+        </section>
+
+        <!-- NOVO: Banner de Oferta e Frete Grátis -->
+        <div class="offer-banner">
+            🚚 OFERTA IMPERDÍVEL! FRETE GRÁTIS PARA TODO O BRASIL!
+        </div>
+
+        <h2>Nossos Produtos</h2>
+
+        <!-- Botões de Filtro -->
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="suplemento">Suplementos</button>
+            <button class="filter-btn" data-filter="remedio">Vitaminas & Remédios</button>
+        </div>
+
+        <section class="products-container">
+            <!-- Produto Creatina -->
+            <div class="product" data-product-type="suplemento-gramas" data-product-id="creatina" data-product-name="Creatina" data-product-description="Aumenta a força e a massa muscular, fornecendo mais energia para os treinos." data-product-price="74.90" data-product-img="img/zzz.jpg">
+                <img src="img/zzz.jpg" alt="Creatina (Growth)" data-img-src="img/zzz.jpg">
+                <div class="product-info">
+                    <h3>Creatina (Growth)</h3>
+                    <p>Aumenta a força e a massa muscular, fornecendo mais energia para os treinos.</p>
+                    <span>R$ 74,90</span>
+                </div>
+            </div>
+        
+            <!-- Produto Whey -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="whey" data-product-name="Whey Protein" data-product-description="Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz." data-product-price="99.90" data-product-img="img/hhh.jpg">
+                <img src="img/hhh.jpg" alt="Whey Protein (Growth)" data-img-src="img/hhh.jpg">
+                <div class="product-info">
+                    <h3>Whey Protein (Growth)</h3>
+                    <p>Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz.</p>
+                    <span>R$ 99,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Multivitamínico -->
+            <div class="product" data-product-type="remedio" data-product-id="multivitaminico" data-product-name="Multivitamínico" data-product-description="Complexo de vitaminas e minerais essenciais para a saúde e bem-estar do dia a dia." data-product-price="59.90" data-product-img="https://via.placeholder.com/300x200.png?text=Multivitamínico">
+                <img src="img/mult.jpg" alt="Multivitamínico" data-img-src="https://via.placeholder.com/50x50.png?text=Multi">
+                <div class="product-info">
+                    <h3>Multivitamínico</h3>
+                    <p>Complexo de vitaminas e minerais essenciais para a saúde e bem-estar do dia a dia.</p>
+                    <span>R$ 59,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Ômega 3 -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="omega3" data-product-name="Ômega 3" data-product-description="Fonte de gorduras boas que auxiliam na saúde do coração, cérebro e articulações." data-product-price="65.00" data-product-img="https://via.placeholder.com/300x200.png?text=Ômega+3">
+                <img src="img/omg.jpg" alt="Ômega 3" data-img-src="https://via.placeholder.com/50x50.png?text=Ômega3">
+                <div class="product-info">
+                    <h3>Ômega 3</h3>
+                    <p>Fonte de gorduras boas que auxiliam na saúde do coração, cérebro e articulações.</p>
+                    <span>R$ 65,00</span>
+                </div>
+            </div>
+
+            <!-- Produto BCAA -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="bcaa" data-product-name="BCAA" data-product-description="Aminoácidos essenciais para a recuperação muscular e redução da fadiga durante os treinos." data-product-price="49.90" data-product-img="https://via.placeholder.com/300x200.png?text=BCAA">
+                <img src="img/bcaa.jpg" alt="BCAA" data-img-src="https://via.placeholder.com/50x50.png?text=BCAA">
+                <div class="product-info">
+                    <h3>BCAA</h3>
+                    <p>Aminoácidos essenciais para a recuperação muscular e redução da fadiga durante os treinos.</p>
+                    <span>R$ 49,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Glutamina -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="glutamina" data-product-name="Glutamina" data-product-description="Suporte para o sistema imunológico e a saúde intestinal, além de auxiliar na recuperação." data-product-price="55.00" data-product-img="https://via.placeholder.com/300x200.png?text=Glutamina">
+                <img src="img/gla.jpg" alt="Glutamina" data-img-src="https://via.placeholder.com/50x50.png?text=Glutamina">
+                <div class="product-info">
+                    <h3>Glutamina</h3>
+                    <p>Suporte para o sistema imunológico e a saúde intestinal, além de auxiliar na recuperação.</p>
+                    <span>R$ 55,00</span>
+                </div>
+            </div>
+
+            <!-- Produto Termogênico -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="termogenico" data-product-name="Termogênico" data-product-description="Acelera o metabolismo e aumenta a queima de gordura, fornecendo mais energia para o dia." data-product-price="119.90" data-product-img="https://via.placeholder.com/300x200.png?text=Termogênico">
+                <img src="img/trm.jpg" alt="Termogênico" data-img-src="https://via.placeholder.com/50x50.png?text=Termo">
+                <div class="product-info">
+                    <h3>Termogênico</h3>
+                    <p>Acelera o metabolismo e aumenta a queima de gordura, fornecendo mais energia para o dia.</p>
+                    <span>R$ 119,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Colágeno Hidrolisado -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="colageno" data-product-name="Colágeno Hidrolisado" data-product-description="Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações." data-product-price="89.90" data-product-img="https://via.placeholder.com/300x200.png?text=Colágeno">
+                <img src="img/col.jpg" alt="Colágeno Hidrolisado" data-img-src="https://via.placeholder.com/50x50.png?text=Colágeno">
+                <div class="product-info">
+                    <h3>Colágeno (Growth)</h3>
+                    <p>Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações.</p>
+                    <span>R$ 89,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Barra de Proteína -->
+            <div class="product" data-product-type="suplemento-unidade" data-product-id="barra-proteina" data-product-name="Barra de Proteína (Bold)" data-product-description="Lanche prático e delicioso, rico em proteínas para qualquer hora do dia." data-product-price="9.90" data-product-img="https://via.placeholder.com/300x200.png?text=Barra+Proteína">
+                <img src="img/barra.jpg"alt="Barra de Proteína (Bold)" data-img-src="https://via.placeholder.com/50x50.png?text=Barra">
+                <div class="product-info">
+                    <h3>Barra de Proteína (Bold)</h3>
+                    <p>Lanche prático e delicioso, rico em proteínas para qualquer hora do dia.</p>
+                    <span>R$ 9,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Pré-Treino -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="pre-treino" data-product-name="Pré-Treino (Max Titanium)" data-product-description="Explosão de energia e foco para treinos mais intensos e produtivos." data-product-price="129.90" data-product-img="https://via.placeholder.com/300x200.png?text=Pré-Treino">
+                <img src="img/pre.jpg" alt="Pré-Treino (Max Titanium)" data-img-src="https://via.placeholder.com/50x50.png?text=Pre">
+                <div class="product-info">
+                    <h3>Pré-Treino (Max Titanium)</h3>
+                    <p>Explosão de energia e foco para treinos mais intensos e produtivos.</p>
+                    <span>R$ 129,90</span>
+                </div>
+            </div>
+
+            <!-- Produto ZMA -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="zma" data-product-name="ZMA" data-product-description="Combinação de Zinco, Magnésio e Vitamina B6 que melhora a recuperação e o sono." data-product-price="69.90" data-product-img="https://via.placeholder.com/300x200.png?text=ZMA">
+                <img src="img/zma.jpg" alt="ZMA" data-img-src="https://via.placeholder.com/50x50.png?text=ZMA">
+                <div class="product-info">
+                    <h3>ZMA</h3>
+                    <p>Combinação de Zinco, Magnésio e Vitamina B6 que melhora a recuperação e o sono.</p>
+                    <span>R$ 69,90</span>
+                </div>
+            </div>
+
+            <!-- Variação Creatina -->
+            <div class="product" data-product-type="suplemento-gramas" data-product-id="creatina-max" data-product-name="Creatina (Max Titanium)" data-product-description="Aumenta a força e a massa muscular, fornecendo mais energia para os treinos." data-product-price="84.90" data-product-img="https://via.placeholder.com/300x200.png?text=Creatina+Max">
+                <img src="img/cre.jpg" alt="Creatina (Max Titanium)" data-img-src="https://via.placeholder.com/50x50.png?text=CreaMax">
+                <div class="product-info">
+                    <h3>Creatina (Max Titanium)</h3>
+                    <p>Aumenta a força e a massa muscular, fornecendo mais energia para os treinos.</p>
+                    <span>R$ 84,90</span>
+                </div>
+            </div>
+
+            <!-- Variação Whey -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="whey-integral" data-product-name="Whey Protein (Integralmedica)" data-product-description="Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz." data-product-price="109.90" data-product-img="https://via.placeholder.com/300x200.png?text=Whey+Integral">
+                <img src="img/whey.jpg" alt="Whey Protein (Integralmedica)" data-img-src="https://via.placeholder.com/50x50.png?text=WheyInt">
+                <div class="product-info">
+                    <h3>Whey Protein (Integralmedica)</h3>
+                    <p>Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz.</p>
+                    <span>R$ 109,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Vitamina D3 -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="vitamina-d3" data-product-name="Vitamina D3" data-product-description="Essencial para a saúde óssea, absorção de cálcio e fortalecimento do sistema imunológico." data-product-price="45.00" data-product-img="https://via.placeholder.com/300x200.png?text=Vitamina+D3">
+                <img src="img/d3.jpg" alt="Vitamina D3" data-img-src="https://via.placeholder.com/50x50.png?text=VitD3">
+                <div class="product-info">
+                    <h3>Vitamina D3</h3>
+                    <p>Essencial para a saúde óssea, absorção de cálcio e fortalecimento do sistema imunológico.</p>
+                    <span>R$ 45,00</span>
+                </div>
+            </div>
+
+            <!-- Produto Probióticos -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="probioticos" data-product-name="Probióticos" data-product-description="Equilibra a flora intestinal, melhora a digestão e fortalece as defesas naturais do corpo." data-product-price="79.90" data-product-img="https://via.placeholder.com/300x200.png?text=Probióticos">
+                <img src="img/pro.jpg" alt="Probióticos" data-img-src="https://via.placeholder.com/50x50.png?text=Probio">
+                <div class="product-info">
+                    <h3>Probióticos</h3>
+                    <p>Equilibra a flora intestinal, melhora a digestão e fortalece as defesas naturais do corpo.</p>
+                    <span>R$ 79,90</span>
+                </div>
+            </div>
+
+            <!-- Variação Colágeno -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="colageno-max" data-product-name="Colágeno (Max Titanium)" data-product-description="Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações." data-product-price="95.50" data-product-img="https://via.placeholder.com/300x200.png?text=Colágeno+Max">
+                <img src="img/col.jpg" alt="Colágeno (Max Titanium)" data-img-src="https://via.placeholder.com/50x50.png?text=ColMax">
+                <div class="product-info">
+                    <h3>Colágeno (Max Titanium)</h3>
+                    <p>Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações.</p>
+                    <span>R$ 95,50</span>
+                </div>
+            </div>
+        </section>
+        </div> <!-- FIM NOVO: Wrapper para centralizar o conteúdo principal -->
+    </main>
+
+    <!-- Carrinho Modal -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Seu Carrinho</h2>
+                <button id="close-cart" class="close-modal-btn">&times;</button>
+            </div>
+            <div id="cart-items"><!-- Itens do carrinho serão inseridos aqui --></div>
+            <div class="cart-footer">
+                <div><strong>Total: R$ <span id="cart-total-value">0,00</span></strong></div>
+                <button class="btn checkout-btn">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-detail-modal" class="product-detail-modal">
+        <div class="product-detail-content">
+            <div class="modal-header">
+                <h2 id="modal-product-name">Nome do Produto</h2>
+                <button id="close-product-detail-modal" class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modal-product-image" src="" alt="Imagem do Produto">
+                <p id="modal-product-description">Descrição do produto.</p>
+                <div class="modal-options">
+                    <div class="form-group" data-option-type="flavor">
+                        <label for="modal-product-flavor">Sabor:</label>
+                        <select id="modal-product-flavor">
+                            <option value="Original">Original</option>
+                            <option value="Chocolate">Chocolate</option>
+                            <option value="Baunilha">Baunilha</option>
+                            <option value="Morango">Morango</option>
+                            <option value="Limão">Limão</option>
+                            <option value="Sem Sabor">Sem Sabor</option>
+                        </select>
+                    </div>
+                    <div class="form-group" data-option-type="size">
+                        <label for="modal-product-size">Tamanho/Gramas:</label>
+                        <select id="modal-product-size">
+                            <option value="300g">300g</option>
+                            <option value="500g">500g</option>
+                            <option value="900g">900g</option>
+                            <option value="1kg">1kg</option>
+                            <option value="30 doses">30 doses</option>
+                            <option value="60 doses">60 doses</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-product-pills">Pílulas/Doses:</label>
+                        <select id="modal-product-pills">
+                            <option value="30 Cápsulas">30 Cápsulas</option>
+                            <option value="60 Cápsulas">60 Cápsulas</option>
+                            <option value="90 Cápsulas">90 Cápsulas</option>
+                            <option value="120 Cápsulas">120 Cápsulas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-product-quantity">Quantidade:</label>
+                        <input type="number" id="modal-product-quantity" value="1" min="1">
+                    </div>
+                </div>
+                <div class="modal-price">
+                    Preço: <span id="modal-product-price">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="modal-add-to-cart-btn">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Botão para abrir o carrinho -->
+    <button id="open-cart" class="btn" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">Carrinho 🛒</button>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <!-- Sistema de Suporte -->
+    <link rel="stylesheet" href="support-system/frontend/support.css">
+    <script src="support-system/frontend/support.js"></script>
+
+    <script src="auth.js"></script>
+    <script src="js/script.js"></script>
+
+    <script>
+        // Função para exibir notificações não obstrutivas (toasts)
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#2c3e50',
+                color: 'white',
+                padding: '12px 25px',
+                borderRadius: '8px',
+                zIndex: '1005',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                opacity: '0',
+                transition: 'opacity 0.4s ease, bottom 0.4s ease',
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '1'; toast.style.bottom = '30px'; }, 10);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.bottom = '20px'; setTimeout(() => document.body.removeChild(toast), 400); }, 3000);
+        }
+
+        let cart = [];
+        const openCartBtn = document.getElementById('open-cart');
+        const cartModal = document.getElementById('cart-modal');
+        const closeCartBtn = document.getElementById('close-cart');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const productDetailModal = document.getElementById('product-detail-modal');
+        const closeProductDetailModalBtn = document.getElementById('close-product-detail-modal');
+        const modalProductName = document.getElementById('modal-product-name');
+        const modalProductImage = document.getElementById('modal-product-image');
+        const modalProductDescription = document.getElementById('modal-product-description');
+        const modalProductPrice = document.getElementById('modal-product-price');
+        const modalProductFlavor = document.getElementById('modal-product-flavor');
+        const modalProductSize = document.getElementById('modal-product-size');
+        const modalProductPills = document.getElementById('modal-product-pills');
+        const modalProductQuantity = document.getElementById('modal-product-quantity');
+        const modalAddToCartBtn = document.getElementById('modal-add-to-cart-btn');
+        const cartTotalValue = document.getElementById('cart-total-value');
+        const checkoutBtn = document.querySelector('#cart-modal .checkout-btn');
+
+        // Atualiza a visualização e os cálculos do carrinho
+        function updateCart() {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            // Salva o carrinho no localStorage para persistir entre as páginas
+            localStorage.setItem('cart', JSON.stringify(cart));
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+            } else {
+                cart.forEach((item, index) => {
+                    const itemTotal = item.preco * item.quantidade;
+                    total += itemTotal;
+
+                    const div = document.createElement('div');
+                    div.classList.add('cart-item');
+                    div.innerHTML = `
+                        <div class="cart-item-info">
+                            <img src="${item.imgSrc}" alt="${item.nome}">
+                            <div class="cart-item-details">
+                                <span class="item-name">${item.nome}</span>
+                                <span>R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button class="quantity-btn" data-action="decrease" data-index="${index}">-</button>
+                            <span>${item.quantidade}</span>
+                            <button class="quantity-btn" data-action="increase" data-index="${index}">+</button>
+                            <button class="remove-btn" data-index="${index}">Remover</button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(div);
+                });
+            }
+
+            cartTotalValue.textContent = total.toFixed(2).replace('.', ',');
+        }
+
+        // Adicionar, remover ou alterar quantidade de itens
+        function handleCartAction(e) {
+            const target = e.target;
+            if (!target.hasAttribute('data-index')) return;
+
+            const index = parseInt(target.getAttribute('data-index'));
+            const action = target.getAttribute('data-action');
+
+            if (target.classList.contains('remove-btn')) {
+                cart.splice(index, 1);
+            } else if (action === 'increase') {
+                cart[index].quantidade++;
+            } else if (action === 'decrease') {
+                cart[index].quantidade--;
+                if (cart[index].quantidade === 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCart();
+        }
+
+        // Event listeners
+        cartItemsContainer.addEventListener('click', handleCartAction);
+
+        openCartBtn.addEventListener('click', () => {
+            cartModal.style.display = 'flex';
+            updateCart();
+        });
+
+        closeCartBtn.addEventListener('click', () => {
+            cartModal.style.display = 'none';
+        });
+
+        checkoutBtn.addEventListener('click', () => {
+            window.location.href = 'pagamento.html';
+        });
+
+        // Carrega o carrinho do localStorage ao iniciar a página
+        // E também fecha o modal de detalhes se estiver aberto (embora não deva estar no DOMContentLoaded)
+        document.addEventListener('DOMContentLoaded', () => {
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            updateCart();
+
+            // NOVO: Renderiza produtos cadastrados pelo ADM
+            const customProducts = JSON.parse(localStorage.getItem('customProducts')) || [];
+            const container = document.querySelector('.products-container');
+            
+            customProducts.forEach(p => {
+                const prodHtml = `
+                    <div class="product" data-product-type="${p.category}" data-product-id="${p.id}" data-product-name="${p.name}" data-product-description="${p.desc}" data-product-price="${p.price}" data-product-img="${p.img}">
+                        <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200.png?text=Imagem+Indisponível'">
+                        <div class="product-info">
+                            <h3>${p.name}</h3>
+                            <p>${p.desc}</p>
+                            <span>R$ ${p.price.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    </div>
+                `;
+                // Insere no início da lista para dar destaque aos novos
+                container.insertAdjacentHTML('afterbegin', prodHtml);
+            });
+
+            // NOVO: Atualiza preços baseados no Painel Admin
+            const savedPrices = JSON.parse(localStorage.getItem('productPrices')) || {};
+            document.querySelectorAll('.product').forEach(prod => {
+                const id = prod.getAttribute('data-product-id');
+                if (savedPrices[id] && savedPrices[id] > 0) {
+                    // Atualiza o atributo de preço para o carrinho
+                    prod.setAttribute('data-product-price', savedPrices[id]);
+                    // Atualiza a exibição visual do preço
+                    const priceSpan = prod.querySelector('.product-info span');
+                    if (priceSpan) priceSpan.textContent = `R$ ${savedPrices[id].toFixed(2).replace('.', ',')}`;
+                }
+            });
+
+            // --- Lógica de Filtro de Produtos ---
+            const filterContainer = document.querySelector('.filter-container');
+            const productItems = document.querySelectorAll('.products-container .product');
+
+            if (filterContainer) {
+                filterContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'BUTTON') return;
+
+                    // Atualiza o botão ativo
+                    filterContainer.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+
+                    const filter = e.target.getAttribute('data-filter');
+
+                    productItems.forEach(item => {
+                        const productType = item.getAttribute('data-product-type');
+                        
+                        if (filter === 'todos' || productType.startsWith(filter)) {
+                            item.style.display = 'flex'; // Mostra o item
+                        } else {
+                            item.style.display = 'none'; // Esconde o item
+                        }
+                    });
+                });
+            }
+            // Event listener para abrir o modal de detalhes do produto
+            const productsContainer = document.querySelector('.products-container'); // CORREÇÃO: Seleciona o contêiner correto.
+            if (productsContainer) { // Garante que o contêiner existe antes de adicionar o listener.
+                productsContainer.addEventListener('click', (e) => { // CORREÇÃO: O listener agora está restrito apenas à área de produtos.
+                    
+                    const productDiv = e.target.closest('.product');
+                    if (!productDiv) return; // Se o clique não foi em um produto, não faz nada
+
+                    const name = productDiv.getAttribute('data-product-name');
+                    const description = productDiv.getAttribute('data-product-description');
+                    const price = parseFloat(productDiv.getAttribute('data-product-price'));
+                    const imgSrc = productDiv.getAttribute('data-product-img');
+                    const productType = productDiv.getAttribute('data-product-type');
+                    const productForm = productDiv.getAttribute('data-product-form'); // Novo: Pega o formato do produto
+
+                    modalProductName.textContent = name;
+                    modalProductImage.src = imgSrc;
+                    modalProductDescription.textContent = description;
+                    modalProductPrice.textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+                    
+                    // Reseta os valores e a visibilidade dos campos de opção
+                    modalProductQuantity.value = 1; // Reset quantity
+                    modalProductFlavor.selectedIndex = 0;
+                    modalProductSize.selectedIndex = 0;
+                    modalProductPills.selectedIndex = 0;
+
+                    // Controla quais opções são exibidas com base no tipo de produto
+                    document.querySelector('[data-option-type="flavor"]').classList.toggle('hidden', productType !== 'suplemento-po'); // Mostra sabor apenas para 'suplemento-po'
+                    document.querySelector('[data-option-type="size"]').classList.toggle('hidden', productType !== 'suplemento-po' && productType !== 'suplemento-gramas'); // Mostra tamanho para 'suplemento-po' e 'suplemento-gramas'
+                    modalProductPills.parentElement.classList.toggle('hidden', productType !== 'remedio' || productForm === 'injectable'); // Oculta para injetáveis
+
+                    // Guarda os dados no botão para usar ao adicionar ao carrinho
+                    modalAddToCartBtn.setAttribute('data-current-name', name);
+                    modalAddToCartBtn.setAttribute('data-current-price', price);
+                    modalAddToCartBtn.setAttribute('data-current-imgsrc', imgSrc);
+                    modalAddToCartBtn.setAttribute('data-current-type', productType);
+                    modalAddToCartBtn.setAttribute('data-current-form', productForm); // Guarda o formato do produto
+                    productDetailModal.style.display = 'flex';
+                });
+            } // Fim da correção
+
+            // Event listener para fechar o modal de detalhes do produto
+            closeProductDetailModalBtn.addEventListener('click', () => {
+                productDetailModal.style.display = 'none';
+            });
+
+            // Event listener para adicionar ao carrinho do modal de detalhes
+            modalAddToCartBtn.addEventListener('click', () => {
+                const baseName = modalAddToCartBtn.getAttribute('data-current-name');
+                const productType = modalAddToCartBtn.getAttribute('data-current-type');
+                const productForm = modalAddToCartBtn.getAttribute('data-current-form'); // Pega o formato do produto
+                const price = parseFloat(modalAddToCartBtn.getAttribute('data-current-price'));
+                const imgSrc = modalAddToCartBtn.getAttribute('data-current-imgsrc');
+                const quantity = parseInt(modalProductQuantity.value);
+
+                let name;
+                // Cria o nome completo do item com base nas opções selecionadas
+                if (productType === 'suplemento-po') {
+                    const flavor = modalProductFlavor.value;
+                    const size = modalProductSize.value;
+                    name = `${baseName} - ${flavor} - ${size}`;
+                } else if (productType === 'suplemento-gramas') {
+                    const size = modalProductSize.value;
+                    name = `${baseName} - ${size}`;
+                } else if (productType === 'remedio') {
+                    if (productForm === 'capsule') { // Apenas adiciona pílulas se for cápsula
+                        const pills = modalProductPills.value;
+                        name = `${baseName} - ${pills}`;
+                    } else { // Para injetáveis, o nome base é suficiente
+                        name = baseName;
+                    }
+                }
+                
+                let existingItem = cart.find(item => item.nome === name);
+
+                if (existingItem) {
+                    existingItem.quantidade += quantity;
+                } else {
+                    cart.push({ nome: name, preco: price, quantidade: quantity, imgSrc: imgSrc });
+                }
+
+                showToast(`${name} foi adicionado ao carrinho!`);
+                updateCart();
+                productDetailModal.style.display = 'none'; // Fecha o modal após adicionar
+            });
+        });
+    </script>
+
+</body>
+</html>

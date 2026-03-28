@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Fale com Nossos Nutricionistas - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; padding: 20px; padding-top: 90px; margin: 0; overflow-x: hidden; }
+        header { background-color: #343a40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; position: fixed; display: flex; justify-content: center; align-items: center; top: 0; left: 0; width: 100%; z-index: 1001; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        .site-title { margin: 0; color: #ffc107; font-size: 2rem; font-weight: 700; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        main { max-width: 1200px; margin: 40px auto; }
+        h1 { text-align: center; font-size: 2.8rem; margin-bottom: 20px; color: #343a40; font-weight: 700; }
+        .intro-p { text-align: center; font-size: 1.2rem; color: #555; max-width: 800px; margin: 0 auto 50px auto; }
+        .nutri-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .nutri-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            text-align: center;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .nutri-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        .nutri-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid #1abc9c;
+        }
+        .nutri-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+        .nutri-card .specialty {
+            font-size: 1rem;
+            color: #1abc9c;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .nutri-card p {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .btn { 
+            padding: 12px 24px; 
+            background-color: #1abc9c; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            font-weight: 600; 
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { 
+            background-color: #16a085; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+        footer { background-color: #343a40; color: #f8f9fa; text-align: center; padding: 30px 20px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="site-title">Saúde++</h1>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="nutricionistas.html">Nutricionistas</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O script irá popular esta div -->
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1>Fale com Nossos Nutricionistas</h1>
+        <p class="intro-p">Receba orientação personalizada de nossos especialistas para alcançar seus objetivos de saúde e bem-estar com segurança e eficiência.</p>
+
+        <section class="nutri-container">
+            <!-- Nutricionista 1 -->
+            <div class="nutri-card">
+                <img src="https://via.placeholder.com/150/1abc9c/ffffff?text=AD" alt="Foto da Nutricionista Ana Dias">
+                <h3>Ana Dias</h3>
+                <div class="specialty">Nutrição Esportiva</div>
+                <p>Focada em otimizar o desempenho de atletas e praticantes de atividade física através de planos alimentares estratégicos.</p>
+                <a href="https://wa.me/5511911111111?text=Olá!%20Gostaria%20de%20agendar%20uma%20consulta%20com%20a%20nutricionista%20Ana%20Dias." target="_blank" class="btn">Entrar em Contato</a>
+            </div>
+
+            <!-- Nutricionista 2 -->
+            <div class="nutri-card">
+                <img src="https://via.placeholder.com/150/3498db/ffffff?text=BC" alt="Foto do Nutricionista Bruno Costa">
+                <h3>Bruno Costa</h3>
+                <div class="specialty">Emagrecimento e Reeducação Alimentar</div>
+                <p>Ajuda você a construir uma relação saudável com a comida, promovendo a perda de peso de forma sustentável e definitiva.</p>
+                <a href="https://wa.me/5521922222222?text=Olá!%20Gostaria%20de%20agendar%20uma%20consulta%20com%20o%20nutricionista%20Bruno%20Costa." target="_blank" class="btn">Entrar em Contato</a>
+            </div>
+
+            <!-- Nutricionista 3 -->
+            <div class="nutri-card">
+                <img src="https://via.placeholder.com/150/e74c3c/ffffff?text=CS" alt="Foto da Nutricionista Carla Souza">
+                <h3>Carla Souza</h3>
+                <div class="specialty">Nutrição Clínica e Funcional</div>
+                <p>Especialista em tratar e prevenir doenças através da alimentação, focando na individualidade bioquímica de cada paciente.</p>
+                <a href="https://wa.me/5531933333333?text=Olá!%20Gostaria%20de%20agendar%20uma%20consulta%20com%20a%20nutricionista%20Carla%20Souza." target="_blank" class="btn">Entrar em Contato</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="js/script.js"></script>
+
+</body>
+</html>

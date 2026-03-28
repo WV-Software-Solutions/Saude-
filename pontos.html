@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Programa de Pontos - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; padding: 20px; padding-top: 90px; margin: 0; }
+        header { background-color: #343a40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; position: fixed; display: flex; justify-content: center; align-items: center; top: 0; left: 0; width: 100%; z-index: 1001; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        .site-title { margin: 0; color: #ffc107; font-size: 2rem; font-weight: 700; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        main { max-width: 1000px; margin: 40px auto; }
+        h1 { text-align: center; font-size: 2.8rem; margin-bottom: 20px; color: #343a40; font-weight: 700; }
+
+        /* Estilos do Programa de Pontos */
+        .points-header {
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
+        }
+        .points-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .points-balance {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 10px 0 0 0;
+        }
+
+        .rewards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .reward-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .reward-card h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        .reward-card p {
+            color: #555;
+            flex-grow: 1;
+            margin-bottom: 20px;
+        }
+        .reward-cost {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1abc9c;
+            margin-bottom: 20px;
+        }
+        .reward-cost span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #6c757d;
+        }
+        .btn-redeem {
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .btn-redeem:hover:not(:disabled) {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-redeem:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .not-logged-in {
+            text-align: center;
+            padding: 50px;
+            background-color: #fff;
+            border-radius: 10px;
+        }
+        .not-logged-in h2 { margin-bottom: 15px; }
+        .not-logged-in a { color: #1abc9c; font-weight: 600; }
+
+        footer { background-color: #343a40; color: #f8f9fa; text-align: center; padding: 30px 20px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="site-title">Saúde++</h1>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="profissionais.html">Profissionais</a></li>
+                    <li><a href="pontos.html">Pontos</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main id="points-page-content">
+        <!-- Conteúdo será carregado pelo JavaScript -->
+    </main>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const mainContent = document.getElementById('points-page-content');
+
+            if (!currentUser) {
+                mainContent.innerHTML = /*html*/`
+                    <div class="not-logged-in">
+                        <h2>Acesse sua conta para ver seus pontos!</h2>
+                        <p>Faça <a href="login.html">login</a> ou <a href="cadastro.html">crie uma conta</a> para começar a juntar pontos e resgatar recompensas.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const rewards = [
+                { id: 'cupom20', title: 'Cupom de R$20', description: 'Use em sua próxima compra em nosso site.', cost: 200 },
+                { id: 'smartfit', title: 'Voucher Smart Fit', description: '1 mês de academia grátis na Smart Fit.', cost: 1000 },
+                { id: 'phd', title: 'Voucher PhD Sports', description: '1 mês de academia grátis na PhD Sports.', cost: 800 }
+            ];
+
+            function renderPage() {
+                mainContent.innerHTML = /*html*/`
+                    <h1>Programa de Pontos</h1>
+                    <div class="points-header">
+                        <h2>Seu Saldo de Pontos</h2>
+                        <div class="points-balance">${currentUser.points || 0}</div>
+                    </div>
+                    <h2 style="text-align:center; margin-bottom: 30px;">Recompensas Disponíveis</h2>
+                    <div class="rewards-container">
+                        ${rewards.map(reward => `
+                            <div class="reward-card">
+                                <h3>${reward.title}</h3>
+                                <p>${reward.description}</p>
+                                <div class="reward-cost">${reward.cost} <span>pontos</span></div>
+                                <button class="btn-redeem" data-cost="${reward.cost}" data-id="${reward.id}" ${((currentUser.points || 0) < reward.cost) ? 'disabled' : ''}>
+                                    Resgatar
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                document.querySelectorAll('.btn-redeem').forEach(button => {
+                    button.addEventListener('click', handleRedeem);
+                });
+            }
+
+            function handleRedeem(event) {
+                const cost = parseInt(event.target.dataset.cost);
+                const rewardId = event.target.dataset.id;
+                
+                if ((currentUser.points || 0) < cost) {
+                    showToast("Você não tem pontos suficientes para esta recompensa.", true);
+                    return;
+                }
+
+                const confirmation = confirm(`Você tem certeza que deseja resgatar esta recompensa por ${cost} pontos?`);
+                if (confirmation) {
+                    currentUser.points -= cost;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    let users = JSON.parse(localStorage.getItem('users')) || [];
+                    const userIndex = users.findIndex(u => u.email === currentUser.email);
+                    if (userIndex !== -1) {
+                        users[userIndex].points = currentUser.points;
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+
+                    const couponCode = `${rewardId.toUpperCase()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+                    alert(`Recompensa resgatada com sucesso!\n\nSeu código é: ${couponCode}\n\nGuarde este código para usar com nossos parceiros ou em sua próxima compra.`);
+
+                    renderPage();
+                }
+            }
+
+            renderPage();
+        });
+    </script>
+
+</body>
+</html>

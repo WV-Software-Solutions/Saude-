@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Suporte - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="support.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; margin: 0; padding-top: 80px; }
+        header { background-color: #343a40; padding: 1rem 2rem; position: fixed; top: 0; width: 100%; z-index: 1001; box-sizing: border-box; display: flex; justify-content: center; }
+        .header-container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        .site-title { color: #ffc107; font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        
+        main { max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        .support-page-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; height: 75vh; }
+        
+        .chat-header { background-color: #3498db; color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 10px; }
+        .chat-header h2 { margin: 0; font-size: 1.2rem; }
+        
+        /* Sobrescrevendo estilos do support.css para tela cheia */
+        .chat-window { position: static; width: 100%; height: 100%; opacity: 1; pointer-events: auto; transform: none; box-shadow: none; display: flex; }
+        .chat-messages { flex-grow: 1; padding: 25px; }
+        .chat-footer { padding: 20px; background: #fff; border-radius: 0 0 12px 12px; }
+        
+        .guest-info-box { padding: 15px; background: #e8f4fd; border-radius: 8px; margin-bottom: 15px; display: flex; gap: 10px; }
+        .guest-info-box input { flex: 1; padding: 10px; border: 1px solid #c3daed; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="site-title">Saúde++</a>
+            <nav><a href="index.html" style="color: white; text-decoration: none; font-weight: 600;">Voltar ao Início</a></nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="support-page-container">
+            <div class="chat-header">
+                <span>💬</span>
+                <h2>Central de Atendimento Saúde++</h2>
+            </div>
+            
+            <div id="chat-messages" class="chat-messages">
+                <!-- Mensagens carregadas aqui -->
+            </div>
+
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="support.js"></script>
+</body>
+</html>

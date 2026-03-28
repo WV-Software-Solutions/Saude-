@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nossos Produtos - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; padding: 20px; padding-top: 90px; margin: 0; overflow-x: hidden; } /* CORREÇÃO: Garante que não haja margem extra no body */
+        header { background-color: #343a40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; position: fixed; display: flex; justify-content: center; align-items: center; top: 0; left: 0; width: 100%; z-index: 1001; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        /* NOVO: Wrapper para centralizar o conteúdo principal */
+        .main-content-wrapper {
+            max-width: 1200px; /* Largura máxima do conteúdo */
+            margin: 0 auto; /* Centraliza o wrapper na página */
+            padding: 0 20px; /* Espaçamento lateral interno */
+        }
+        .site-title { margin: 0; color: #ffc107; font-size: 2rem; font-weight: 700; line-height: 1; }
+        .btn { padding: 12px 24px; background-color: #1abc9c; color: white; border: none; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .btn:hover { background-color: #16a085; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s, transform 0.3s ease; } /* Adiciona transição para transform */
+        nav a:hover { color: #fff; transform: translateY(-2px); } /* Animação de leve movimento para cima */
+        h2 { text-align: center; font-size: 2.8rem; margin-bottom: 50px; color: #343a40; font-weight: 700; }
+        .products-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .product {
+            background-color: #fff;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer; /* Indica que o card é clicável */
+            opacity: 0; /* Inicialmente invisível para a animação */
+            animation: fadeInUp 0.6s ease-out forwards; /* Aplica a animação */
+        }
+        .product:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        .product img { width: 100%; height: 200px; object-fit: cover; }
+        .product-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-info h3 { margin: 0 0 10px 0; font-size: 1.4rem; color: #2c3e50; }
+        .product-info p { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 15px; line-height: 1.6; }
+        .product-info span { font-weight: bold; font-size: 1.8rem; color: #343a40; margin-bottom: 15px; }
+
+        /* Product Detail Modal Styles */
+        .product-detail-modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1003; /* Above cart modal */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            /* CORREÇÃO: Removido 'display: flex;' daqui. O JS controlará a exibição. */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .product-detail-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* NOVO: Para esconder campos de opção dinamicamente */
+        .modal-options .form-group.hidden {
+            display: none;
+        }
+
+        .product-detail-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .product-detail-content .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            text-align: left; /* Override global h2 center align */
+        }
+
+        .product-detail-content .close-modal-btn {
+            color: #aaa;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.3s;
+        }
+
+        .product-detail-content .close-modal-btn:hover,
+        .product-detail-content .close-modal-btn:focus {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .product-detail-content .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        footer { background-color: #343a40; color: #f8f9fa; text-align: center; padding: 30px 20px; margin-top: 60px; } /* CORREÇÃO: Garante que o footer não seja afetado por overflow */
+
+        /* NOVO: Estilos para o banner de oferta */
+        .offer-banner {
+            background: linear-gradient(45deg, #ffc107, #ff6b6b); /* Fundo em gradiente vibrante */
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 40px 0;
+            border-radius: 8px;
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden; /* Essencial para o efeito de brilho */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Efeito de brilho (shine) */
+        .offer-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-25deg);
+            animation: shine 4s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { left: -150%; }
+            100% { left: 150%; }
+        }
+
+        /* Atrasos escalonados para os produtos */
+        .products-container .product:nth-child(1) { animation-delay: 0.1s; }
+        .products-container .product:nth-child(2) { animation-delay: 0.2s; }
+        .products-container .product:nth-child(3) { animation-delay: 0.3s; }
+        .products-container .product:nth-child(4) { animation-delay: 0.4s; }
+        /* Adicione mais se tiver mais produtos */
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="site-title">Saúde++</h1>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="nutricionistas.html">Nutricionistas</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O contêiner do menu de usuário será preenchido pelo auth.js -->
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- NOVO: Wrapper para centralizar o conteúdo principal -->
+        <div class="main-content-wrapper">
+        <!-- NOVO: Banner de Oferta e Frete Grátis -->
+        <div class="offer-banner">
+            🚚 OFERTA IMPERDÍVEL! FRETE GRÁTIS PARA TODO O BRASIL!
+        </div>
+        <h2>Nossos Produtos</h2>
+
+        <section class="products-container">
+            <!-- Produto Creatina -->
+            <div class="product" data-product-type="suplemento-gramas" data-product-id="creatina" data-product-name="Creatina" data-product-description="Aumenta a força e a massa muscular, fornecendo mais energia para os treinos." data-product-price="74.90" data-product-img="img/zzz.jpg">
+                <img src="img/zzz.jpg" alt="Creatina (Growth)" data-img-src="img/zzz.jpg">
+                <div class="product-info">
+                    <h3>Creatina (Growth)</h3>
+                    <p>Aumenta a força e a massa muscular, fornecendo mais energia para os treinos.</p>
+                    <span>R$ 74,90</span>
+                </div>
+            </div>
+        
+            <!-- Produto Whey -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="whey" data-product-name="Whey Protein" data-product-description="Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz." data-product-price="99.90" data-product-img="img/hhh.jpg">
+                <img src="img/hhh.jpg" alt="Whey Protein (Growth)" data-img-src="img/hhh.jpg">
+                <div class="product-info">
+                    <h3>Whey Protein (Growth)</h3>
+                    <p>Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz.</p>
+                    <span>R$ 99,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Multivitamínico -->
+            <div class="product" data-product-type="remedio" data-product-id="multivitaminico" data-product-name="Multivitamínico" data-product-description="Complexo de vitaminas e minerais essenciais para a saúde e bem-estar do dia a dia." data-product-price="59.90" data-product-img="https://via.placeholder.com/300x200.png?text=Multivitamínico">
+                <img src="https://via.placeholder.com/300x200.png?text=Multivitamínico" alt="Multivitamínico" data-img-src="https://via.placeholder.com/50x50.png?text=Multi">
+                <div class="product-info">
+                    <h3>Multivitamínico</h3>
+                    <p>Complexo de vitaminas e minerais essenciais para a saúde e bem-estar do dia a dia.</p>
+                    <span>R$ 59,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Ômega 3 -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="omega3" data-product-name="Ômega 3" data-product-description="Fonte de gorduras boas que auxiliam na saúde do coração, cérebro e articulações." data-product-price="65.00" data-product-img="https://via.placeholder.com/300x200.png?text=Ômega+3">
+                <img src="https://via.placeholder.com/300x200.png?text=Ômega+3" alt="Ômega 3" data-img-src="https://via.placeholder.com/50x50.png?text=Ômega3">
+                <div class="product-info">
+                    <h3>Ômega 3</h3>
+                    <p>Fonte de gorduras boas que auxiliam na saúde do coração, cérebro e articulações.</p>
+                    <span>R$ 65,00</span>
+                </div>
+            </div>
+
+            <!-- Produto BCAA -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="bcaa" data-product-name="BCAA" data-product-description="Aminoácidos essenciais para a recuperação muscular e redução da fadiga durante os treinos." data-product-price="49.90" data-product-img="https://via.placeholder.com/300x200.png?text=BCAA">
+                <img src="https://via.placeholder.com/300x200.png?text=BCAA" alt="BCAA" data-img-src="https://via.placeholder.com/50x50.png?text=BCAA">
+                <div class="product-info">
+                    <h3>BCAA</h3>
+                    <p>Aminoácidos essenciais para a recuperação muscular e redução da fadiga durante os treinos.</p>
+                    <span>R$ 49,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Glutamina -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="glutamina" data-product-name="Glutamina" data-product-description="Suporte para o sistema imunológico e a saúde intestinal, além de auxiliar na recuperação." data-product-price="55.00" data-product-img="https://via.placeholder.com/300x200.png?text=Glutamina">
+                <img src="https://via.placeholder.com/300x200.png?text=Glutamina" alt="Glutamina" data-img-src="https://via.placeholder.com/50x50.png?text=Glutamina">
+                <div class="product-info">
+                    <h3>Glutamina</h3>
+                    <p>Suporte para o sistema imunológico e a saúde intestinal, além de auxiliar na recuperação.</p>
+                    <span>R$ 55,00</span>
+                </div>
+            </div>
+
+            <!-- Produto Termogênico -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="termogenico" data-product-name="Termogênico" data-product-description="Acelera o metabolismo e aumenta a queima de gordura, fornecendo mais energia para o dia." data-product-price="119.90" data-product-img="https://via.placeholder.com/300x200.png?text=Termogênico">
+                <img src="https://via.placeholder.com/300x200.png?text=Termogênico" alt="Termogênico" data-img-src="https://via.placeholder.com/50x50.png?text=Termo">
+                <div class="product-info">
+                    <h3>Termogênico</h3>
+                    <p>Acelera o metabolismo e aumenta a queima de gordura, fornecendo mais energia para o dia.</p>
+                    <span>R$ 119,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Colágeno Hidrolisado -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="colageno" data-product-name="Colágeno Hidrolisado" data-product-description="Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações." data-product-price="89.90" data-product-img="https://via.placeholder.com/300x200.png?text=Colágeno">
+                <img src="https://via.placeholder.com/300x200.png?text=Colágeno" alt="Colágeno Hidrolisado" data-img-src="https://via.placeholder.com/50x50.png?text=Colágeno">
+                <div class="product-info">
+                    <h3>Colágeno (Growth)</h3>
+                    <p>Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações.</p>
+                    <span>R$ 89,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Barra de Proteína -->
+            <div class="product" data-product-type="suplemento-unidade" data-product-id="barra-proteina" data-product-name="Barra de Proteína (Bold)" data-product-description="Lanche prático e delicioso, rico em proteínas para qualquer hora do dia." data-product-price="9.90" data-product-img="https://via.placeholder.com/300x200.png?text=Barra+Proteína">
+                <img src="https://via.placeholder.com/300x200.png?text=Barra+Proteína" alt="Barra de Proteína (Bold)" data-img-src="https://via.placeholder.com/50x50.png?text=Barra">
+                <div class="product-info">
+                    <h3>Barra de Proteína (Bold)</h3>
+                    <p>Lanche prático e delicioso, rico em proteínas para qualquer hora do dia.</p>
+                    <span>R$ 9,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Pré-Treino -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="pre-treino" data-product-name="Pré-Treino (Max Titanium)" data-product-description="Explosão de energia e foco para treinos mais intensos e produtivos." data-product-price="129.90" data-product-img="https://via.placeholder.com/300x200.png?text=Pré-Treino">
+                <img src="https://via.placeholder.com/300x200.png?text=Pré-Treino" alt="Pré-Treino (Max Titanium)" data-img-src="https://via.placeholder.com/50x50.png?text=Pre">
+                <div class="product-info">
+                    <h3>Pré-Treino (Max Titanium)</h3>
+                    <p>Explosão de energia e foco para treinos mais intensos e produtivos.</p>
+                    <span>R$ 129,90</span>
+                </div>
+            </div>
+
+            <!-- Produto ZMA -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="zma" data-product-name="ZMA" data-product-description="Combinação de Zinco, Magnésio e Vitamina B6 que melhora a recuperação e o sono." data-product-price="69.90" data-product-img="https://via.placeholder.com/300x200.png?text=ZMA">
+                <img src="https://via.placeholder.com/300x200.png?text=ZMA" alt="ZMA" data-img-src="https://via.placeholder.com/50x50.png?text=ZMA">
+                <div class="product-info">
+                    <h3>ZMA</h3>
+                    <p>Combinação de Zinco, Magnésio e Vitamina B6 que melhora a recuperação e o sono.</p>
+                    <span>R$ 69,90</span>
+                </div>
+            </div>
+
+            <!-- Variação Creatina -->
+            <div class="product" data-product-type="suplemento-gramas" data-product-id="creatina-max" data-product-name="Creatina (Max Titanium)" data-product-description="Aumenta a força e a massa muscular, fornecendo mais energia para os treinos." data-product-price="84.90" data-product-img="https://via.placeholder.com/300x200.png?text=Creatina+Max">
+                <img src="https://via.placeholder.com/300x200.png?text=Creatina+Max" alt="Creatina (Max Titanium)" data-img-src="https://via.placeholder.com/50x50.png?text=CreaMax">
+                <div class="product-info">
+                    <h3>Creatina (Max Titanium)</h3>
+                    <p>Aumenta a força e a massa muscular, fornecendo mais energia para os treinos.</p>
+                    <span>R$ 84,90</span>
+                </div>
+            </div>
+
+            <!-- Variação Whey -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="whey-integral" data-product-name="Whey Protein (Integralmedica)" data-product-description="Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz." data-product-price="109.90" data-product-img="https://via.placeholder.com/300x200.png?text=Whey+Integral">
+                <img src="https://via.placeholder.com/300x200.png?text=Whey+Integral" alt="Whey Protein (Integralmedica)" data-img-src="https://via.placeholder.com/50x50.png?text=WheyInt">
+                <div class="product-info">
+                    <h3>Whey Protein (Integralmedica)</h3>
+                    <p>Auxilia no ganho de massa muscular e na recuperação pós-treino de forma eficaz.</p>
+                    <span>R$ 109,90</span>
+                </div>
+            </div>
+
+            <!-- Produto Vitamina D3 -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="vitamina-d3" data-product-name="Vitamina D3" data-product-description="Essencial para a saúde óssea, absorção de cálcio e fortalecimento do sistema imunológico." data-product-price="45.00" data-product-img="https://via.placeholder.com/300x200.png?text=Vitamina+D3">
+                <img src="https://via.placeholder.com/300x200.png?text=Vitamina+D3" alt="Vitamina D3" data-img-src="https://via.placeholder.com/50x50.png?text=VitD3">
+                <div class="product-info">
+                    <h3>Vitamina D3</h3>
+                    <p>Essencial para a saúde óssea, absorção de cálcio e fortalecimento do sistema imunológico.</p>
+                    <span>R$ 45,00</span>
+                </div>
+            </div>
+
+            <!-- Produto Probióticos -->
+            <div class="product" data-product-type="remedio" data-product-form="capsule" data-product-id="probioticos" data-product-name="Probióticos" data-product-description="Equilibra a flora intestinal, melhora a digestão e fortalece as defesas naturais do corpo." data-product-price="79.90" data-product-img="https://via.placeholder.com/300x200.png?text=Probióticos">
+                <img src="https://via.placeholder.com/300x200.png?text=Probióticos" alt="Probióticos" data-img-src="https://via.placeholder.com/50x50.png?text=Probio">
+                <div class="product-info">
+                    <h3>Probióticos</h3>
+                    <p>Equilibra a flora intestinal, melhora a digestão e fortalece as defesas naturais do corpo.</p>
+                    <span>R$ 79,90</span>
+                </div>
+            </div>
+
+            <!-- Variação Colágeno -->
+            <div class="product" data-product-type="suplemento-po" data-product-id="colageno-max" data-product-name="Colágeno (Max Titanium)" data-product-description="Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações." data-product-price="95.50" data-product-img="https://via.placeholder.com/300x200.png?text=Colágeno+Max">
+                <img src="https://via.placeholder.com/300x200.png?text=Colágeno+Max" alt="Colágeno (Max Titanium)" data-img-src="https://via.placeholder.com/50x50.png?text=ColMax">
+                <div class="product-info">
+                    <h3>Colágeno (Max Titanium)</h3>
+                    <p>Melhora a firmeza da pele, fortalece unhas e cabelos, e auxilia na saúde das articulações.</p>
+                    <span>R$ 95,50</span>
+                </div>
+            </div>
+        </section>
+        </div> <!-- FIM NOVO: Wrapper para centralizar o conteúdo principal -->
+    </main>
+
+    <a href="pagamento.html" class="btn" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background-color: #1abc9c;">Finalizar Compra 💳</a>
+
+    <!-- Product Detail Modal -->
+    <div id="product-detail-modal" class="product-detail-modal">
+        <div class="product-detail-content">
+            <div class="modal-header">
+                <h2 id="modal-product-name">Nome do Produto</h2>
+                <button id="close-product-detail-modal" class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modal-product-image" src="" alt="Imagem do Produto">
+                <p id="modal-product-description">Descrição do produto.</p>
+                <div class="modal-options">
+                    <div class="form-group" data-option-type="flavor">
+                        <label for="modal-product-flavor">Sabor:</label>
+                        <select id="modal-product-flavor">
+                            <option value="Original">Original</option>
+                            <option value="Chocolate">Chocolate</option>
+                            <option value="Baunilha">Baunilha</option>
+                            <option value="Morango">Morango</option>
+                            <option value="Limão">Limão</option>
+                            <option value="Sem Sabor">Sem Sabor</option>
+                        </select>
+                    </div>
+                    <div class="form-group" data-option-type="size">
+                        <label for="modal-product-size">Tamanho/Gramas:</label>
+                        <select id="modal-product-size">
+                            <option value="300g">300g</option>
+                            <option value="500g">500g</option>
+                            <option value="900g">900g</option>
+                            <option value="1kg">1kg</option>
+                            <option value="30 doses">30 doses</option>
+                            <option value="60 doses">60 doses</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-product-pills">Pílulas/Doses:</label>
+                        <select id="modal-product-pills">
+                            <option value="30 Cápsulas">30 Cápsulas</option>
+                            <option value="60 Cápsulas">60 Cápsulas</option>
+                            <option value="90 Cápsulas">90 Cápsulas</option>
+                            <option value="120 Cápsulas">120 Cápsulas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-product-quantity">Quantidade:</label>
+                        <input type="number" id="modal-product-quantity" value="1" min="1">
+                    </div>
+                </div>
+                <div class="modal-price">
+                    Preço: <span id="modal-product-price">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="modal-add-to-cart-btn">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+
+    <script>
+        // Função para exibir notificações não obstrutivas (toasts)
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#2c3e50',
+                color: 'white',
+                padding: '12px 25px',
+                borderRadius: '8px',
+                zIndex: '1005',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                opacity: '0',
+                transition: 'opacity 0.4s ease, bottom 0.4s ease',
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '1'; toast.style.bottom = '30px'; }, 10);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.bottom = '20px'; setTimeout(() => document.body.removeChild(toast), 400); }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const productDetailModal = document.getElementById('product-detail-modal');
+            const closeProductDetailModalBtn = document.getElementById('close-product-detail-modal');
+            const modalProductName = document.getElementById('modal-product-name');
+            const modalProductImage = document.getElementById('modal-product-image');
+            const modalProductDescription = document.getElementById('modal-product-description');
+            const modalProductPrice = document.getElementById('modal-product-price');
+            const modalProductFlavor = document.getElementById('modal-product-flavor');
+            const modalProductSize = document.getElementById('modal-product-size');
+            const modalProductPills = document.getElementById('modal-product-pills');
+            const modalProductQuantity = document.getElementById('modal-product-quantity');
+            const modalAddToCartBtn = document.getElementById('modal-add-to-cart-btn');
+
+            // Event listener para abrir o modal de detalhes do produto
+            const productsContainer = document.querySelector('.products-container');
+            if (productsContainer) {
+                productsContainer.addEventListener('click', (e) => {
+                    // Adiciona uma verificação para ignorar cliques que vêm do cabeçalho
+                    if (e.target.closest('header')) {
+                        return;
+                    }
+
+                    const productDiv = e.target.closest('.product');
+                    if (!productDiv) return; // Se o clique não foi em um produto, não faz nada
+
+                    // Pega os dados do produto
+                    const name = productDiv.getAttribute('data-product-name');
+                    const description = productDiv.getAttribute('data-product-description');
+                    const price = parseFloat(productDiv.getAttribute('data-product-price'));
+                    const imgSrc = productDiv.getAttribute('data-product-img');
+                    const productType = productDiv.getAttribute('data-product-type');
+                    const productForm = productDiv.getAttribute('data-product-form'); // Novo: Pega o formato do produto
+
+                    // Popula o modal com as informações
+                    modalProductName.textContent = name;
+                    modalProductImage.src = imgSrc;
+                    modalProductDescription.textContent = description;
+                    modalProductPrice.textContent = `R$ ${price.toFixed(2).replace('.', ',')}`;
+                    
+                    // Reseta os valores e a visibilidade dos campos de opção
+                    modalProductQuantity.value = 1; // Reset quantity
+                    modalProductFlavor.selectedIndex = 0;
+                    modalProductSize.selectedIndex = 0;
+                    modalProductPills.selectedIndex = 0;
+
+                    // Controla quais opções são exibidas com base no tipo de produto
+                    document.querySelector('[data-option-type="flavor"]').classList.toggle('hidden', productType !== 'suplemento-po'); // Mostra sabor apenas para 'suplemento-po'
+                    document.querySelector('[data-option-type="size"]').classList.toggle('hidden', productType !== 'suplemento-po' && productType !== 'suplemento-gramas'); // Mostra tamanho para 'suplemento-po' e 'suplemento-gramas'
+                    modalProductPills.parentElement.classList.toggle('hidden', productType !== 'remedio' || productForm === 'injectable'); // Oculta para injetáveis
+
+                    // Guarda os dados no botão para usar ao adicionar ao carrinho
+                    modalAddToCartBtn.setAttribute('data-current-name', name);
+                    modalAddToCartBtn.setAttribute('data-current-price', price);
+                    modalAddToCartBtn.setAttribute('data-current-imgsrc', imgSrc);
+                    modalAddToCartBtn.setAttribute('data-current-type', productType);
+
+                    productDetailModal.style.display = 'flex';
+                });
+            }
+
+            // Event listener para fechar o modal de detalhes do produto
+            closeProductDetailModalBtn.addEventListener('click', () => {
+                productDetailModal.style.display = 'none';
+            });
+
+            // Event listener para adicionar ao carrinho do modal de detalhes
+            modalAddToCartBtn.addEventListener('click', () => {
+                const baseName = modalAddToCartBtn.getAttribute('data-current-name');
+                const productType = modalAddToCartBtn.getAttribute('data-current-type');
+                const price = parseFloat(modalAddToCartBtn.getAttribute('data-current-price'));
+                const imgSrc = modalAddToCartBtn.getAttribute('data-current-imgsrc');
+                const quantity = parseInt(modalProductQuantity.value);
+
+                let name;
+                // Cria o nome completo do item com base nas opções selecionadas
+                if (productType === 'suplemento-po') {
+                    const flavor = modalProductFlavor.value;
+                    const size = modalProductSize.value;
+                    name = `${baseName} - ${flavor} - ${size}`;
+                } else if (productType === 'suplemento-gramas') {
+                    const size = modalProductSize.value;
+                    name = `${baseName} - ${size}`;
+                } else if (productType === 'remedio') {
+                    const productForm = modalAddToCartBtn.getAttribute('data-current-form'); // Pega o formato do produto
+                    if (productForm === 'capsule') { // Apenas adiciona pílulas se for cápsula
+                        const pills = modalProductPills.value;
+                        name = `${baseName} - ${pills}`;
+                    } else { // Para injetáveis, o nome base é suficiente
+                        name = baseName;
+                    }
+                }
+                
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let existingItem = cart.find(item => item.nome === name);
+
+                if (existingItem) {
+                    existingItem.quantidade += quantity;
+                } else {
+                    cart.push({ nome: name, preco: price, quantidade: quantity, imgSrc: imgSrc });
+                }
+
+                localStorage.setItem('cart', JSON.stringify(cart));
+
+                showToast(`${name} foi adicionado ao carrinho!`);
+                productDetailModal.style.display = 'none'; // Fecha o modal após adicionar
+            });
+        });
+    </script>
+
+</body>
+</html>

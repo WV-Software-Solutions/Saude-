@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Crie sua Conta - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
+        header { background-color: #343a40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; display: flex; justify-content: center; align-items: center; width: 100%; z-index: 1001; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
+        .site-title { margin: 0; color: #ffc107; font-size: 2rem; font-weight: 700; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        main { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 20px; }
+        .register-container { background-color: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
+        h1 { font-size: 2.2rem; color: #343a40; margin-bottom: 25px; }
+        .register-form { display: flex; flex-direction: column; gap: 20px; }
+        .form-group { text-align: left; display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; color: #495057; margin-bottom: 5px; display: block; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 1rem; box-sizing: border-box; }
+        .form-group input:focus { border-color: #1abc9c; outline: none; box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25); }
+        
+        /* Organização em Grid */
+        .form-section { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; text-align: left; }
+        .form-section h3 { margin: 0; font-size: 1.1rem; color: #1abc9c; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 550px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .btn { padding: 14px; background-color: #1abc9c; color: white; border: none; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; font-size: 1rem; width: 100%; }
+        .btn:hover { background-color: #16a085; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .switch-form { margin-top: 20px; font-size: 0.9rem; }
+        .switch-form a { color: #1abc9c; text-decoration: none; font-weight: 600; }
+        footer { background-color: #343a40; color: #f8f9fa; text-align: center; padding: 30px 20px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="index.html" style="text-decoration: none;"><div class="site-title">Saúde++</div></a>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="profissionais.html">Profissionais</a></li>
+                    <li><a href="avaliacoes.html">Avaliações</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O contêiner do menu de usuário será preenchido pelo auth.js -->
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="register-container">
+            <h1>Crie sua Conta</h1>
+            <form id="register-form" class="register-form">
+                <div class="form-section">
+                    <h3>Dados Pessoais</h3>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="name">Nome Completo</label>
+                        <input type="text" id="name" placeholder="Digite seu nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthdate">Nascimento</label>
+                        <input type="date" id="birthdate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gênero</label>
+                        <select id="gender" style="width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-family: 'Poppins', sans-serif; height: 50px;">
+                            <option value="" disabled selected>Selecione...</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Outro">Outro</option>
+                            <option value="Prefiro não dizer">Não informar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section" style="margin-top: 20px;">
+                    <h3>Contato e Segurança</h3>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Telefone / WhatsApp</label>
+                        <input type="tel" id="phone" placeholder="(00) 00000-0000" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="password">Senha de Acesso</label>
+                        <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Cadastrar</button>
+            </form>
+            <div class="switch-form">
+                <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script>
+        // Função para exibir notificações (toasts)
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            Object.assign(toast.style, {
+                position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+                backgroundColor: isError ? '#e74c3c' : '#2c3e50', color: 'white', padding: '12px 25px',
+                borderRadius: '8px', zIndex: '1005', boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                opacity: '0', transition: 'opacity 0.4s ease, bottom 0.4s ease',
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '1'; toast.style.bottom = '30px'; }, 10);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.bottom = '20px'; setTimeout(() => document.body.removeChild(toast), 400); }, 3000);
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                birthdate: document.getElementById('birthdate').value,
+                gender: document.getElementById('gender').value,
+                password: document.getElementById('password').value,
+                points: 0
+            };
+
+            try {
+                await AuthService.registerUser(userData);
+                showToast('Cadastro realizado com sucesso! Redirecionando...');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+            } catch (error) {
+                showToast(error.message, true);
+            }
+        });
+    </script>
+
+</body>
+</html>

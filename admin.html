@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; height: 100vh; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        .sidebar h2 { color: #ffc107; font-size: 1.5rem; margin-bottom: 30px; border-bottom: 1px solid #3e5871; padding-bottom: 10px; }
+        .sidebar nav a { color: #ecf0f1; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; display: block; }
+        .sidebar nav a:hover, .sidebar nav a.active { background-color: #1abc9c; color: white; }
+        .logout-btn { margin-top: auto; background-color: #e74c3c; padding: 10px; text-align: center; border-radius: 8px; color: white; text-decoration: none; font-weight: bold; }
+        
+        main { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0; color: #7f8c8d; font-size: 0.9rem; text-transform: uppercase; }
+        .card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: 700; color: #2c3e50; }
+
+        .section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: 600; color: #495057; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        table th, table td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        table th { color: #7f8c8d; }
+        .category-header { background-color: #f8f9fa; font-weight: bold; color: #1abc9c; border-top: 2px solid #eee; }
+        
+        input[type="number"], input[type="text"], select, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: 'Poppins', sans-serif; }
+        .btn-save { background-color: #1abc9c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .investment-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        .hidden { display: none; }
+
+        /* Estilos para Status de Pedidos */
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .status-pendente { background-color: #ffeeba; color: #856404; }
+        .status-finalizado { background-color: #d4edda; color: #155724; }
+        .status-cancelado { background-color: #f8d7da; color: #721c24; }
+        .btn-action { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.8rem; margin-right: 5px; color: white; }
+        .btn-finalize { background-color: #27ae60; }
+        .btn-add-item { background-color: #3498db; }
+        .btn-delete { background-color: #e74c3c; }
+        .btn-restore { background-color: #f39c12; }
+
+        /* Abas de Pedidos */
+        .order-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: 600; color: #7f8c8d; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #1abc9c; border-bottom-color: #1abc9c; }
+
+        /* Modal de Edição de Pedido */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; color: #2c3e50; }
+        .close-btn { font-size: 1.5rem; cursor: pointer; color: #7f8c8d; border: none; background: none; }
+        .order-items-detail { margin: 20px 0; border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #f9f9f9; }
+        .order-items-detail h3 { margin-top: 0; font-size: 1rem; color: #7f8c8d; text-transform: uppercase; }
+        .order-items-detail ul { list-style: none; padding: 0; margin: 0; }
+        .order-items-detail li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .order-items-detail li:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Saúde++ ADM</h2>
+        <nav>
+            <a href="#" class="active" onclick="showSection('dashboard', this)">Resumo Geral</a>
+            <a href="#" onclick="showSection('add-product-section', this)">Cadastrar Produto</a>
+            <a href="#" onclick="showSection('products', this)">Estoque e Preços</a>
+            <a href="#" onclick="showSection('orders', this)">Lista de Pedidos</a>
+            <a href="#" onclick="showSection('users-management', this)">Gerenciar Usuários</a>
+            <a href="#" onclick="showSection('investments', this)">Investimentos</a>
+        </nav>
+        <a href="login.html" class="logout-btn" onclick="localStorage.removeItem('currentUser')">Sair do Sistema</a>
+    </div>
+
+    <main>
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="admin-section">
+            <div class="dashboard-header"><h1>Dashboard de Lucros</h1></div>
+            <div class="card-grid">
+                <div class="card"><h3>Vendas Totais</h3><p id="total-revenue">R$ 0,00</p></div>
+                <div class="card"><h3>Investimentos</h3><p id="total-invested" style="color: #e74c3c;">R$ 0,00</p></div>
+                <div class="card"><h3>Lucro Líquido</h3><p id="net-profit" style="color: #27ae60;">R$ 0,00</p></div>
+                <div class="card"><h3>Total de Usuários</h3><p id="total-users">0</p></div>
+            </div>
+            <div class="section">
+                <canvas id="profitChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- CADASTRAR NOVO PRODUTO -->
+        <div id="add-product-section" class="admin-section hidden">
+            <h1>Cadastrar Novo Produto</h1>
+            <div class="section">
+                <form id="new-product-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Nome do Produto</label>
+                        <input type="text" id="p-name" placeholder="Ex: Whey Protein Isolado" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Preço de Venda (R$)</label>
+                        <input type="number" id="p-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="p-category">
+                            <option value="suplemento-po">Suplemento (Pó)</option>
+                            <option value="suplemento-gramas">Suplemento (Gramas)</option>
+                            <option value="remedio">Vitaminas / Cápsulas</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>URL da Imagem do Produto</label>
+                        <input type="text" id="p-img" placeholder="https://link-da-imagem.com/foto.jpg" required>
+                        <small style="color: #666;">Dica: Use links de imagens do Google ou do seu fornecedor.</small>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Descrição Curta</label>
+                        <textarea id="p-desc" rows="3" placeholder="Breve explicação sobre os benefícios..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-save" style="grid-column: span 2; padding: 15px;">Salvar Produto no Catálogo</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PRODUTOS -->
+        <div id="products" class="admin-section hidden">
+            <h1>Gerenciar Preços de Produtos</h1>
+            <div class="section">
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Nome</th><th>Preço Atual (R$)</th><th>Novo Preço</th><th>Ação</th></tr>
+                    </thead>
+                    <tbody id="product-list-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GERENCIAR USUÁRIOS -->
+        <div id="users-management" class="admin-section hidden">
+            <h1>Gerenciar Contas de Usuários</h1>
+            <div class="section">
+                <input type="text" id="user-admin-search" class="search-bar" placeholder="🔍 Buscar usuário por nome ou e-mail..." onkeyup="filterUsersAdmin()">
+                <table id="users-admin-table">
+                    <thead>
+                        <tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Pontos</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="users-admin-list-body">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PEDIDOS -->
+        <div id="orders" class="admin-section hidden">
+            <h1>Histórico de Pedidos</h1>
+            <div class="order-tabs">
+                <button class="tab-btn active" onclick="filterOrders('Pendente', this)">Em Andamento</button>
+                <button class="tab-btn" onclick="filterOrders('Finalizado', this)">Finalizados</button>
+                <button class="tab-btn" onclick="filterOrders('Cancelado', this)">Lixeira</button>
+            </div>
+            <div class="section">
+                <table id="orders-table" style="font-size: 0.9rem;">
+                    <thead><tr><th>ID</th><th>Cliente</th><th>Data</th><th>Itens</th><th>Total</th><th>Informações</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes e Edição do Pedido -->
+        <div id="order-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-order-id">Detalhes do Pedido</h2>
+                    <button class="close-btn" onclick="closeOrderModal()">&times;</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Nome do Cliente</label>
+                        <input type="text" id="edit-order-name" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="text" id="edit-order-email" disabled>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Data</label>
+                        <input type="text" id="edit-order-date" disabled>
+                    </div>
+                </div>
+                <div class="order-items-detail">
+                    <h3>Itens Comprados</h3>
+                    <ul id="edit-order-items"></ul>
+                    <div style="text-align: right; margin-top: 10px; font-weight: bold; font-size: 1.1rem; color: #2c3e50;">
+                        Total: <span id="edit-order-total">R$ 0,00</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Endereço de Entrega</label>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                        <input type="text" id="edit-order-street" placeholder="Rua">
+                        <input type="text" id="edit-order-number" placeholder="Nº">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <input type="text" id="edit-order-neighborhood" placeholder="Bairro">
+                        <input type="text" id="edit-order-city" placeholder="Cidade">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <input type="text" id="edit-order-state" placeholder="Estado">
+                        <input type="text" id="edit-order-cep" placeholder="CEP">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select id="edit-order-payment">
+                        <option value="PIX">PIX</option>
+                        <option value="Cartão">Cartão</option>
+                    </select>
+                </div>
+                <!-- Informações do Cartão -->
+                <div id="card-info-section" style="border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fffcf0; display: none;">
+                    <h3 style="margin-top: 0; font-size: 0.9rem; color: #856404; text-transform: uppercase;">Dados do Cartão</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group"><label>Tipo</label><input type="text" id="edit-card-type" disabled></div>
+                        <div class="form-group"><label>Nome no Cartão</label><input type="text" id="edit-card-name"></div>
+                        <div class="form-group"><label>Número</label><input type="text" id="edit-card-number"></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
+                        <div class="form-group"><label>Validade</label><input type="text" id="edit-card-expiry"></div>
+                        <div class="form-group"><label>CVC</label><input type="text" id="edit-card-cvc"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status Atual</label>
+                    <select id="edit-order-status">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 25px;">
+                    <button class="btn-save" style="flex: 1; padding: 15px;" onclick="saveOrderChanges()">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Edição de Usuário -->
+        <div id="user-edit-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Editar Conta do Usuário</h2>
+                    <button class="close-btn" onclick="closeUserEditModal()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="edit-user-name" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail (Login)</label>
+                    <input type="email" id="edit-user-email" disabled title="O e-mail não pode ser alterado.">
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="tel" id="edit-user-phone">
+                </div>
+                <div class="form-group">
+                    <label>Data de Nascimento</label>
+                    <input type="date" id="edit-user-birthdate">
+                </div>
+                <div class="form-group">
+                    <label>Gênero</label>
+                    <select id="edit-user-gender">
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não dizer">Não informar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pontos de Fidelidade</label>
+                    <input type="number" id="edit-user-points">
+                </div>
+                <div style="margin-top: 25px;">
+                    <button class="btn-save" style="width: 100%; padding: 15px;" onclick="saveUserChanges()">Salvar Alterações do Perfil</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVESTIMENTOS -->
+        <div id="investments" class="admin-section hidden">
+            <h1>Registrar Investimentos/Custos</h1>
+            <div class="section">
+                <form class="investment-form" id="investment-form">
+                    <input type="text" id="inv-desc" placeholder="Descrição (ex: Estoque, Marketing)" style="width: 250px;" required>
+                    <input type="number" id="inv-value" placeholder="Valor R$" step="0.01" required>
+                    <button type="submit" class="btn-save">Adicionar Custo</button>
+                </form>
+                <table id="investments-table">
+                    <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+        // Proteção de Rota
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || currentUser.role !== 'admin') window.location.href = 'login.html';
+
+        function showSection(id, element) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+            element.classList.add('active');
+            if(id === 'dashboard') initDashboard();
+            if(id === 'users-management') initUsersAdmin();
+            if(id === 'orders') {
+                currentOrderFilter = 'Pendente';
+                initOrders();
+            }
+        }
+
+        let currentOrderFilter = 'Pendente';
+
+        function filterOrders(status, btn) {
+            currentOrderFilter = status;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            initOrders();
+        }
+
+        // Mock de IDs de produtos (baseado no index.html)
+        const defaultProducts = [
+            { id: 'creatina', name: 'Creatina (Growth)', category: 'suplemento-gramas' },
+            { id: 'creatina-max', name: 'Creatina (Max Titanium)', category: 'suplemento-gramas' },
+            { id: 'whey', name: 'Whey Protein (Growth)', category: 'suplemento-po' },
+            { id: 'whey-integral', name: 'Whey Protein (Integralmedica)', category: 'suplemento-po' },
+            { id: 'bcaa', name: 'BCAA', category: 'suplemento-po' },
+            { id: 'glutamina', name: 'Glutamina', category: 'suplemento-po' },
+            { id: 'pre-treino', name: 'Pré-Treino (Max Titanium)', category: 'suplemento-po' },
+            { id: 'colageno', name: 'Colágeno (Growth)', category: 'suplemento-po' },
+            { id: 'colageno-max', name: 'Colágeno (Max Titanium)', category: 'suplemento-po' },
+            { id: 'multivitaminico', name: 'Multivitamínico', category: 'remedio' },
+            { id: 'omega3', name: 'Ômega 3', category: 'remedio' },
+            { id: 'termogenico', name: 'Termogênico', category: 'remedio' },
+            { id: 'zma', name: 'ZMA', category: 'remedio' },
+            { id: 'vitamina-d3', name: 'Vitamina D3', category: 'remedio' },
+            { id: 'probioticos', name: 'Probióticos', category: 'remedio' },
+            { id: 'barra-proteina', name: 'Barra de Proteína (Bold)', category: 'suplemento-gramas' }
+        ];
+
+        const defaultPrices = {
+            'creatina': 74.90, 'creatina-max': 84.90, 'whey': 99.90, 'whey-integral': 109.90,
+            'bcaa': 49.90, 'glutamina': 55.00, 'pre-treino': 129.90, 'colageno': 89.90,
+            'colageno-max': 95.50, 'multivitaminico': 59.90, 'omega3': 65.00, 'termogenico': 119.90,
+            'zma': 69.90, 'vitamina-d3': 45.00, 'probioticos': 79.90, 'barra-proteina': 9.90
+        };
+
+        const categoryDisplay = {
+            'suplemento-po': 'Suplemento P (Pó)',
+            'suplemento-gramas': 'Suplemento G (Gramas)',
+            'remedio': 'Cápsulas / Vitaminas'
+        };
+
+        function initProducts() {
+            const tbody = document.getElementById('product-list-body');
+            const prices = JSON.parse(localStorage.getItem('productPrices')) || {};
+            const customProducts = JSON.parse(localStorage.getItem('customProducts')) || [];
+            
+            const allProducts = [...defaultProducts, ...customProducts];
+            const categories = ['suplemento-po', 'suplemento-gramas', 'remedio'];
+            
+            let html = '';
+
+            categories.forEach(cat => {
+                const filtered = allProducts.filter(p => p.category === cat);
+                
+                html += `<tr class="category-header"><td colspan="5">${categoryDisplay[cat]}</td></tr>`;
+                
+                filtered.forEach((p, index) => {
+                    const isCustom = p.id.startsWith('custom-');
+                    const currentPrice = prices[p.id] || p.price || defaultPrices[p.id];
+                    
+                    html += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${p.name}</td>
+                            <td>R$ ${parseFloat(currentPrice).toFixed(2).replace('.', ',')}</td>
+                            <td><input type="number" id="price-${p.id}" step="0.01" placeholder="Novo val."></td>
+                            <td>
+                                <button class="btn-save" onclick="updatePrice('${p.id}')">Salvar</button>
+                                ${isCustom ? `<button class="btn-save" style="background-color: #e74c3c; margin-left:5px;" onclick="deleteCustomProduct('${p.id}')">Excluir</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+
+            // Outros (caso existam categorias não mapeadas)
+            const others = allProducts.filter(p => !categories.includes(p.category));
+            if (others.length > 0) {
+                html += `<tr class="category-header"><td colspan="5">Outros</td></tr>`;
+                others.forEach((p, index) => {
+                    html += `<tr><td>${index + 1}</td><td>${p.name}</td><td>R$ ${parseFloat(p.price).toFixed(2)}</td><td>--</td><td><button onclick="deleteCustomProduct('${p.id}')">Excluir</button></td></tr>`;
+                });
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        document.getElementById('new-product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newProduct = {
+                id: 'custom-' + Date.now(),
+                name: document.getElementById('p-name').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                category: document.getElementById('p-category').value,
+                img: document.getElementById('p-img').value,
+                desc: document.getElementById('p-desc').value
+            };
+
+            const customProducts = JSON.parse(localStorage.getItem('customProducts')) || [];
+            customProducts.push(newProduct);
+            localStorage.setItem('customProducts', JSON.stringify(customProducts));
+            
+            alert("Produto cadastrado com sucesso!");
+            e.target.reset();
+            initProducts();
+        });
+
+        function deleteCustomProduct(id) {
+            if(!confirm("Deseja excluir este produto?")) return;
+            let customProducts = JSON.parse(localStorage.getItem('customProducts')) || [];
+            customProducts = customProducts.filter(p => p.id !== id);
+            localStorage.setItem('customProducts', JSON.stringify(customProducts));
+            initProducts();
+        }
+
+        function updatePrice(id) {
+            const newVal = parseFloat(document.getElementById(`price-${id}`).value);
+            if (isNaN(newVal)) return alert("Insira um valor válido");
+            const prices = JSON.parse(localStorage.getItem('productPrices')) || {};
+            prices[id] = newVal;
+            localStorage.setItem('productPrices', JSON.stringify(prices));
+            alert("Preço atualizado!");
+            initProducts();
+        }
+
+        function initDashboard() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const investments = JSON.parse(localStorage.getItem('investments')) || [];
+            const users = AuthService.getUsers();
+            
+            const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+            const expense = investments.reduce((sum, i) => sum + i.value, 0);
+            
+            document.getElementById('total-revenue').innerText = `R$ ${revenue.toFixed(2)}`;
+            document.getElementById('total-invested').innerText = `R$ ${expense.toFixed(2)}`;
+            document.getElementById('net-profit').innerText = `R$ ${(revenue - expense).toFixed(2)}`;
+            document.getElementById('total-users').innerText = users.length;
+
+            // Gráfico
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            if (window.myChart) window.myChart.destroy();
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Financeiro Mensal'],
+                    datasets: [
+                        { label: 'Receita (Vendas)', data: [revenue], backgroundColor: '#1abc9c' },
+                        { label: 'Gastos (Investimentos)', data: [expense], backgroundColor: '#e74c3c' }
+                    ]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            });
+        }
+
+        // --- FUNÇÕES DE GERENCIAMENTO DE USUÁRIOS ---
+
+        function initUsersAdmin() {
+            const users = AuthService.getUsers();
+            renderUsersAdmin(users);
+        }
+
+        function renderUsersAdmin(usersList) {
+            const tbody = document.getElementById('users-admin-list-body');
+            tbody.innerHTML = usersList.map(user => `
+                <tr>
+                    <td><strong>${user.name}</strong></td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>${user.points || 0} pts</td>
+                    <td>
+                        <button class="btn-action btn-add-item" onclick="openUserEditModal('${user.email}')">✏️ Editar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsersAdmin() {
+            const query = document.getElementById('user-admin-search').value.toLowerCase();
+            const allUsers = AuthService.getUsers();
+            const filtered = allUsers.filter(u => 
+                u.name.toLowerCase().includes(query) || 
+                u.email.toLowerCase().includes(query)
+            );
+            renderUsersAdmin(filtered);
+        }
+
+        let currentEditingUserEmail = null;
+
+        function openUserEditModal(email) {
+            currentEditingUserEmail = email;
+            const users = AuthService.getUsers();
+            const user = users.find(u => u.email === email);
+            if (!user) return;
+
+            document.getElementById('edit-user-name').value = user.name || '';
+            document.getElementById('edit-user-email').value = user.email || '';
+            document.getElementById('edit-user-phone').value = user.phone || '';
+            document.getElementById('edit-user-birthdate').value = user.birthdate || '';
+            document.getElementById('edit-user-gender').value = user.gender || 'Masculino';
+            document.getElementById('edit-user-points').value = user.points || 0;
+
+            document.getElementById('user-edit-modal').style.display = 'flex';
+        }
+
+        function closeUserEditModal() {
+            document.getElementById('user-edit-modal').style.display = 'none';
+            currentEditingUserEmail = null;
+        }
+
+        function saveUserChanges() {
+            const users = AuthService.getUsers();
+            const userIndex = users.findIndex(u => u.email === currentEditingUserEmail);
+
+            if (userIndex !== -1) {
+                users[userIndex].name = document.getElementById('edit-user-name').value;
+                users[userIndex].phone = document.getElementById('edit-user-phone').value;
+                users[userIndex].birthdate = document.getElementById('edit-user-birthdate').value;
+                users[userIndex].gender = document.getElementById('edit-user-gender').value;
+                users[userIndex].points = parseInt(document.getElementById('edit-user-points').value) || 0;
+
+                AuthService.updateUser(users[userIndex]);
+                alert("Usuário atualizado com sucesso!");
+                closeUserEditModal();
+                initUsersAdmin();
+            }
+        }
+
+        function initOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const tbody = document.querySelector('#orders-table tbody');
+            
+            const filteredOrders = orders.filter(o => {
+                if (currentOrderFilter === 'Pendente') return !o.status || o.status === 'Pendente';
+                return o.status === currentOrderFilter;
+            });
+
+            tbody.innerHTML = filteredOrders.reverse().map(o => `
+                <tr>
+                    <td>#${o.id}</td>
+                    <td>
+                        <strong>${o.userName || 'Cliente'}</strong><br>
+                        <small style="color: #666;">${o.userEmail}</small>
+                    </td>
+                    <td>${o.date}</td>
+                    <td>
+                        <ul style="margin:0; padding-left:15px;">
+                            ${o.items.map(item => `<li>${item.quantidade}x ${item.nome}</li>`).join('')}
+                        </ul>
+                    </td>
+                    <td>R$ ${o.total.toFixed(2)}</td>
+                    <td>
+                        <div style="font-size: 0.75rem; line-height: 1.2; min-width: 150px;">
+                            <strong>End:</strong> ${typeof o.address === 'object' ? `${o.address.street}, ${o.address.number} - ${o.address.city}` : (o.address || 'N/A')}<br>
+                            <strong>Pag:</strong> ${o.paymentMethod || 'N/A'}${o.cardDetails ? ` (${o.cardDetails.type === 'credit' ? 'Crédito' : 'Débito'})` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${o.status === 'Finalizado' ? 'status-finalizado' : (o.status === 'Cancelado' ? 'status-cancelado' : 'status-pendente')}">
+                            ${o.status || 'Pendente'}
+                        </span>
+                    </td>
+                    <td>
+                        ${o.status !== 'Finalizado' && o.status !== 'Cancelado' ? `<button class="btn-action btn-finalize" onclick="finalizeOrder(${o.id})">Finalizar</button>` : ''}
+                        ${o.status !== 'Cancelado' ? `<button class="btn-action btn-add-item" onclick="addItemToExistingOrder(${o.id})">+ Item</button>` : ''}
+                        <button class="btn-action" style="background-color: #9b59b6;" onclick="openOrderModal(${o.id})">🔍 Ampliar/Editar</button>
+                        ${o.status === 'Cancelado' ? `<button class="btn-action btn-restore" onclick="restoreOrder(${o.id})">Restaurar</button>` : ''}
+                        <button class="btn-action btn-delete" onclick="${o.status === 'Cancelado' ? `deleteOrderPermanent(${o.id})` : `cancelOrder(${o.id})`}" title="${o.status === 'Cancelado' ? 'Excluir Permanente' : 'Mover para Lixeira'}">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function finalizeOrder(orderId) {
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+                orders[index].status = 'Finalizado';
+                localStorage.setItem('orders', JSON.stringify(orders));
+                initOrders();
+                initDashboard();
+            }
+        }
+
+        function cancelOrder(orderId) {
+            if (!confirm("Deseja mover este pedido para a lixeira?")) return;
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+                orders[index].status = 'Cancelado';
+                localStorage.setItem('orders', JSON.stringify(orders));
+                initOrders();
+            }
+        }
+
+        function restoreOrder(orderId) {
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+                orders[index].status = 'Pendente';
+                localStorage.setItem('orders', JSON.stringify(orders));
+                initOrders();
+            }
+        }
+
+        function deleteOrderPermanent(orderId) {
+            if (!confirm("Tem certeza que deseja excluir este pedido definitivamente?")) return;
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders = orders.filter(o => o.id !== orderId);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            initOrders();
+        }
+
+        function addItemToExistingOrder(orderId) {
+            const itemName = prompt("Nome do item a ser acrescentado:");
+            if (!itemName) return;
+            
+            const itemPrice = parseFloat(prompt("Preço unitário do item (Ex: 50.00):"));
+            const itemQty = parseInt(prompt("Quantidade:"));
+
+            if (isNaN(itemPrice) || isNaN(itemQty)) return alert("Valores inválidos!");
+
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const index = orders.findIndex(o => o.id === orderId);
+
+            if (index !== -1) {
+                orders[index].items.push({ nome: itemName, preco: itemPrice, quantidade: itemQty });
+                orders[index].total += (itemPrice * itemQty);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                alert("Item adicionado com sucesso!");
+                initOrders();
+                initDashboard();
+            }
+        }
+
+        let currentEditingOrderId = null;
+
+        function openOrderModal(orderId) {
+            currentEditingOrderId = orderId;
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('modal-order-id').innerText = `Detalhes do Pedido #${order.id}`;
+            document.getElementById('edit-order-name').value = order.userName || 'Não informado';
+            document.getElementById('edit-order-email').value = order.userEmail;
+            document.getElementById('edit-order-date').value = order.date;
+            
+            // Preenche campos de endereço separados
+            const addr = order.address || {};
+            document.getElementById('edit-order-street').value = addr.street || '';
+            document.getElementById('edit-order-number').value = addr.number || '';
+            document.getElementById('edit-order-neighborhood').value = addr.neighborhood || '';
+            document.getElementById('edit-order-city').value = addr.city || '';
+            document.getElementById('edit-order-state').value = addr.state || '';
+            document.getElementById('edit-order-cep').value = addr.cep || '';
+
+            document.getElementById('edit-order-payment').value = order.paymentMethod || '';
+            document.getElementById('edit-order-status').value = order.status || 'Pendente';
+            document.getElementById('edit-order-total').innerText = `R$ ${order.total.toFixed(2).replace('.', ',')}`;
+
+            // Mostra info do cartão se existir
+            const cardSection = document.getElementById('card-info-section');
+            if (order.cardDetails) {
+                cardSection.style.display = 'block';
+                document.getElementById('edit-card-type').value = order.cardDetails.type === 'credit' ? 'Crédito' : 'Débito';
+                document.getElementById('edit-card-name').value = order.cardDetails.name || '';
+                document.getElementById('edit-card-number').value = order.cardDetails.number || '';
+                document.getElementById('edit-card-expiry').value = order.cardDetails.expiry || '';
+                document.getElementById('edit-card-cvc').value = order.cardDetails.cvc || '';
+            } else {
+                cardSection.style.display = 'none';
+            }
+
+            const itemsList = document.getElementById('edit-order-items');
+            itemsList.innerHTML = order.items.map(item => `
+                <li>
+                    <span>${item.quantidade}x ${item.nome}</span>
+                    <span>R$ ${(item.preco * item.quantidade).toFixed(2).replace('.', ',')}</span>
+                </li>
+            `).join('');
+
+            document.getElementById('order-modal').style.display = 'flex';
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').style.display = 'none';
+            currentEditingOrderId = null;
+        }
+
+        function saveOrderChanges() {
+            if (!currentEditingOrderId) return;
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const index = orders.findIndex(o => o.id === currentEditingOrderId);
+            
+            if (index !== -1) {
+                // Salva endereço como objeto
+                orders[index].address = {
+                    street: document.getElementById('edit-order-street').value,
+                    number: document.getElementById('edit-order-number').value,
+                    neighborhood: document.getElementById('edit-order-neighborhood').value,
+                    city: document.getElementById('edit-order-city').value,
+                    state: document.getElementById('edit-order-state').value,
+                    cep: document.getElementById('edit-order-cep').value
+                };
+
+                orders[index].paymentMethod = document.getElementById('edit-order-payment').value;
+                orders[index].status = document.getElementById('edit-order-status').value;
+                
+                // Se houver dados de cartão, salva as edições neles também
+                if (orders[index].cardDetails) {
+                    orders[index].cardDetails.name = document.getElementById('edit-card-name').value;
+                    orders[index].cardDetails.number = document.getElementById('edit-card-number').value;
+                    orders[index].cardDetails.expiry = document.getElementById('edit-card-expiry').value;
+                    orders[index].cardDetails.cvc = document.getElementById('edit-card-cvc').value;
+                }
+
+                localStorage.setItem('orders', JSON.stringify(orders));
+                closeOrderModal();
+                initOrders();
+                initDashboard();
+                alert("Pedido atualizado com sucesso!");
+            }
+        }
+
+        // Fecha modal ao clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('order-modal');
+            const userModal = document.getElementById('user-edit-modal');
+            if (event.target == modal) {
+                closeOrderModal();
+            }
+            if (event.target == userModal) {
+                closeUserEditModal();
+            }
+        }
+
+        function initInvestments() {
+            const investments = JSON.parse(localStorage.getItem('investments')) || [];
+            const tbody = document.querySelector('#investments-table tbody');
+            tbody.innerHTML = investments.map(i => `
+                <tr><td>${i.date}</td><td>${i.desc}</td><td>R$ ${i.value.toFixed(2)}</td></tr>
+            `).join('');
+        }
+
+        document.getElementById('investment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const desc = document.getElementById('inv-desc').value;
+            const value = parseFloat(document.getElementById('inv-value').value);
+            const investments = JSON.parse(localStorage.getItem('investments')) || [];
+            investments.push({ desc, value, date: new Date().toLocaleDateString('pt-BR') });
+            localStorage.setItem('investments', JSON.stringify(investments));
+            e.target.reset();
+            initInvestments();
+            initDashboard();
+        });
+
+        // Início
+        initProducts();
+        initDashboard();
+        initOrders();
+        initInvestments();
+    </script>
+</body>
+</html>

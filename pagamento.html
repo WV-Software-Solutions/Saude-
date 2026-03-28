@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Pagamento - Saúde++</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+            padding-top: 90px;
+            overflow-x: hidden; /* Evita rolagem horizontal indesejada */
+            margin: 0;
+        }
+        header {
+            background-color: #343a40;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1001;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .site-title {
+            margin: 0;
+            color: #ffc107;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 25px; }
+        nav a { text-decoration: none; color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 1rem; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        main.container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #343a40;
+            font-weight: 700;
+            text-align: center;
+        }
+        .payment-form { display: flex; flex-direction: column; gap: 25px; }
+        .form-section { border-bottom: 1px solid #eee; padding-bottom: 25px; margin-bottom: 25px; }
+        .form-section:last-child { border-bottom: none; margin-bottom: 0; }
+        .form-section h2 { font-size: 1.5rem; color: #2c3e50; margin-bottom: 20px; text-align: left; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: 600; color: #495057; }
+        .form-group input {
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            border-color: #1abc9c;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
+        }
+        .form-row { display: flex; gap: 20px; }
+        .form-row .form-group { flex: 1; }
+        #order-summary { list-style: none; padding: 0; margin-bottom: 20px; }
+        /* NOVO: Estilos para as opções de frete */
+        .shipping-options { display: flex; flex-direction: column; gap: 10px; }
+        .shipping-option input[type="radio"] { display: none; }
+        .shipping-option label { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 2px 15px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: border-color 0.3s, background-color 0.3s; }
+        .shipping-option label span:nth-of-type(1) { font-weight: 600; grid-column: 1; grid-row: 1; }
+        .shipping-option label span:nth-of-type(2) { font-weight: 600; grid-column: 2; grid-row: 1; text-align: right; }
+        .shipping-option label small { color: #6c757d; grid-column: 1 / span 2; grid-row: 2; }
+        .shipping-option input[type="radio"]:checked + label { border-color: #1abc9c; background-color: #f8f9fa; }
+        #shipping-cost-summary { text-align: right; margin-top: 10px; font-weight: 600; color: #555; }
+
+        /* NOVO: Estilos para seleção de pagamento e área PIX */
+        .payment-method-selection { display: flex; gap: 15px; margin-bottom: 20px; }
+        .payment-method-selection label { display: flex; align-items: center; gap: 8px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; flex: 1; justify-content: center; }
+        .payment-method-selection input[type="radio"] { display: none; }
+        .payment-method-selection input[type="radio"]:checked + label { background-color: #e9f5ff; border-color: #1abc9c; font-weight: 700; }
+        #pix-payment-details { text-align: center; }
+        #pix-payment-details img { max-width: 200px; margin: 15px auto; display: block; }
+        #pix-code { background-color: #e9ecef; padding: 10px; border-radius: 5px; word-break: break-all; font-family: monospace; margin-top: 10px; }
+        #order-summary li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        #order-summary li:last-child { border-bottom: none; }
+        #order-total { text-align: right; font-size: 1.4rem; font-weight: 700; margin-top: 15px; }
+        .submit-btn {
+            padding: 15px;
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .submit-btn:hover { background-color: #16a085; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        footer {
+            background-color: #343a40;
+            color: #f8f9fa;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1 class="site-title">Saúde++</h1>
+            <nav id="main-nav" style="display: flex; align-items: center; gap: 40px;">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="projeto.html">Seu Projeto</a></li>
+                    <li><a href="profissionais.html">Profissionais</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                </ul>
+                <!-- O script irá popular esta div -->
+                <div id="user-nav-container" style="position: relative;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Finalizar Pagamento</h1>
+        
+        <form id="payment-form" class="payment-form" novalidate>
+            <section class="form-section">
+                <h2>Resumo do Pedido</h2>
+                <ul id="order-summary">
+                    <!-- Itens do pedido serão carregados aqui -->
+                </ul>
+                <div id="order-total">Total: R$ 0,00</div>
+            </section>
+
+            <section class="form-section">
+                <h2>Seus Dados</h2>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="cep">CEP</label>
+                    <input type="text" id="cep" name="cep" placeholder="00000-000" required>
+                </div>
+                <div class="form-group">
+                    <label for="street">Rua</label>
+                    <input type="text" id="street" name="street" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="number">Número</label>
+                        <input type="text" id="number" name="number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="neighborhood">Bairro</label>
+                        <input type="text" id="neighborhood" name="neighborhood" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">Cidade</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">Estado</label>
+                        <input type="text" id="state" name="state" required>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Método de Pagamento</h2>
+                <div class="payment-method-selection">
+                    <input type="radio" id="payment-card" name="payment-method" value="card" checked>
+                    <label for="payment-card">💳 Cartão de Crédito</label>
+
+                    <input type="radio" id="payment-pix" name="payment-method" value="pix">
+                    <label for="payment-pix">PIX</label>
+                </div>
+
+                <div id="card-payment-details">
+                    <h3>Dados do Cartão</h3>
+                    <div class="payment-method-selection" style="margin-bottom: 15px;">
+                        <input type="radio" id="card-type-credit" name="card-type" value="credit" checked>
+                        <label for="card-type-credit">Crédito</label>
+
+                        <input type="radio" id="card-type-debit" name="card-type" value="debit">
+                        <label for="card-type-debit">Débito</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card-number">Número do Cartão</label>
+                        <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-name">Nome no Cartão</label>
+                        <input type="text" id="card-name" placeholder="Como aparece no cartão" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="card-expiry">Validade</label>
+                            <input type="text" id="card-expiry" placeholder="MM/AA" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="card-cvc">CVC</label>
+                            <input type="text" id="card-cvc" placeholder="123" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pix-payment-details" class="hidden">
+                    <h3>Pague com PIX</h3>
+                    <p>Escaneie o QR Code abaixo com o app do seu banco ou use o código "copia e cola".</p>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QR Code PIX">
+                    <div id="pix-code">00020126580014br.gov.bcb.pix0136a6a1b2c3-d4e5-f6g7-h8i9-j0k1l2m3n4o5520400005303986540510.005802BR5925Joao da Silva6009SAO PAULO62070503***6304ABCD</div>
+                </div>
+            </section>
+
+            <button type="submit" class="submit-btn">Finalizar Pedido</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>desenvolvido por equipe 5</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="js/script.js"></script>
+
+    <script>
+        // Função para exibir notificações não obstrutivas (toasts)
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: isError ? '#e74c3c' : '#2c3e50',
+                color: 'white',
+                padding: '12px 25px',
+                borderRadius: '8px',
+                zIndex: '1005',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                opacity: '0',
+                transition: 'opacity 0.4s ease, bottom 0.4s ease',
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '1'; toast.style.bottom = '30px'; }, 10);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.bottom = '20px'; setTimeout(() => document.body.removeChild(toast), 400); }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const orderSummary = document.getElementById('order-summary');
+            const orderTotal = document.getElementById('order-total');
+            const cardDetails = document.getElementById('card-payment-details');
+            const pixDetails = document.getElementById('pix-payment-details');
+            const paymentRadios = document.querySelectorAll('input[name="payment-method"]');
+            const submitButton = document.querySelector('.submit-btn');
+
+            let total = 0;
+
+            if (cart.length === 0) {
+                document.querySelector('main.container').innerHTML = '<h1>Seu carrinho está vazio.</h1><p style="text-align:center;"><a href="produtos.html" class="btn">Voltar aos produtos</a></p>';
+                return;
+            }
+
+            // --- ATUALIZAÇÃO DO RESUMO ---
+            function updateOrderSummary() {
+                orderSummary.innerHTML = '';
+                let subtotal = 0;
+                cart.forEach(item => {
+                    const itemTotal = item.preco * item.quantidade;
+                    subtotal += itemTotal;
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${item.quantidade}x ${item.nome}</span> <span>R$ ${itemTotal.toFixed(2).replace('.', ',')}</span>`;
+                    orderSummary.appendChild(li);
+                });
+
+                const finalTotal = subtotal; // O total agora é apenas o subtotal
+                orderTotal.textContent = `Total: R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
+            }
+
+            // Lógica para alternar entre os métodos de pagamento
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const method = e.target.value;
+                    if (method === 'card') {
+                        cardDetails.classList.remove('hidden');
+                        pixDetails.classList.add('hidden');
+                        submitButton.textContent = 'Pagar com Cartão';
+                    } else if (method === 'pix') {
+                        cardDetails.classList.add('hidden');
+                        pixDetails.classList.remove('hidden');
+                        submitButton.textContent = 'Confirmar Pedido PIX';
+                    }
+                });
+            });
+            // Dispara o evento change inicial para configurar o estado correto
+            document.querySelector('input[name="payment-method"]:checked').dispatchEvent(new Event('change'));
+
+            // Preenche o e-mail se o usuário estiver logado
+            const loggedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (loggedUser && loggedUser.email) {
+                document.getElementById('email').value = loggedUser.email;
+            }
+
+            // Carrega o resumo do pedido inicial
+            updateOrderSummary();
+
+            const paymentForm = document.getElementById('payment-form');
+            paymentForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Impede o envio real do formulário
+
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser) {
+                    showToast('Você precisa estar logado para finalizar a compra.', true);
+                    // Opcional: redirecionar para o login
+                    // setTimeout(() => window.location.href = 'login.html', 1500);
+                    return;
+                }
+                
+                const selectedMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+                function saveOrder() {
+                    const allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+                    const subtotal = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+                    const address = {
+                        street: document.getElementById('street').value,
+                        number: document.getElementById('number').value,
+                        neighborhood: document.getElementById('neighborhood').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        cep: document.getElementById('cep').value
+                    };
+
+                    // Captura detalhes do cartão se for o método selecionado
+                    let cardInfo = null;
+                    if (selectedMethod === 'card') {
+                        cardInfo = {
+                            number: document.getElementById('card-number').value,
+                            name: document.getElementById('card-name').value,
+                            expiry: document.getElementById('card-expiry').value,
+                            cvc: document.getElementById('card-cvc').value,
+                            type: document.querySelector('input[name="card-type"]:checked').value
+                        };
+                    }
+
+                    const newOrder = {
+                        id: Date.now(),
+                        userName: currentUser.name, // Adicionado para identificar o cliente por nome
+                        userEmail: currentUser.email,
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        items: cart,
+                        total: subtotal,
+                        // Salva o objeto de endereço separado
+                        address: address,
+                        paymentMethod: selectedMethod === 'pix' ? 'PIX' : 'Cartão',
+                        // Salva os dados do cartão (se houver)
+                        cardDetails: cardInfo,
+                        status: 'Pendente'
+                    };
+
+                    allOrders.push(newOrder);
+                    localStorage.setItem('orders', JSON.stringify(allOrders));
+                    localStorage.setItem('lastCompletedOrder', JSON.stringify(newOrder)); // Salva o pedido para a página de confirmação
+                    localStorage.removeItem('cart'); // Limpa o carrinho
+                }
+
+                if (selectedMethod === 'pix') {
+                    saveOrder();
+                    showToast('Pedido confirmado! Aguardando pagamento do PIX.');
+                    setTimeout(() => window.location.href = 'confirmacao-pagamento.html', 2000);
+                } else {
+                    // Validação para cartão de crédito
+                    const inputs = cardDetails.querySelectorAll('input[required]');
+                    let isValid = true;
+                    inputs.forEach(input => {
+                        if (!input.value) {
+                            isValid = false;
+                            input.style.borderColor = 'red';
+                        } else {
+                            input.style.borderColor = '#ced4da';
+                        }
+                    });
+
+                    if (isValid) {
+                        saveOrder();
+                        showToast('Pagamento processado com sucesso! Redirecionando...');
+                        setTimeout(() => window.location.href = 'confirmacao-pagamento.html', 2000); // Redireciona para a confirmação
+                    } else {
+                        showToast('Por favor, preencha todos os campos do cartão.', true);
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
